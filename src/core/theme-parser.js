@@ -51,7 +51,24 @@ class ThemeParserClass {
 
     loadColors() {
         for (const color of this._theme.colors) {
-            this._colors.set(color.id, color);
+            let newColor = {
+                resolveRed: () => {
+                    return ThemeParser.getRedOfColor(color.id);
+                },
+                resolveGreen: () => {
+                    return ThemeParser.getBlueOfColor(color.id);
+                },
+                resolveBlue: () => {
+                    return ThemeParser.getGreenOfColor(color.id);
+                },
+                resolveAlpha: () => {
+                    return ThemeParser.getAlphaOfColor(color.id);
+                },
+            };
+            for (const key in color) {
+                newColor[key] = color[key];
+            }
+            this._colors.set(color.id, newColor);
         }
     }
 
@@ -84,8 +101,27 @@ class ThemeParserClass {
         return Array.from(this._pixmaps.values());
     }
 
-    getColors() {
-        return Array.from(this._colors.values());
+    getColors(resolveAttribute) {
+        let colors = Array.from(this._colors.values());
+        if (!resolveAttribute) {
+            return colors;
+        } else {
+            let colorsResolved = [];
+            for (const colorIndex in colors) {
+                let color = colors[colorIndex];
+                let newColor = {
+                    resolvedRed: color.resolveRed(),
+                    resolvedGreen: color.resolveGreen(),
+                    resolvedBlue: color.resolveBlue(),
+                    resolvedAlpha: color.resolveAlpha(),
+                };
+                for (const key in color) {
+                    newColor[key] = color[key];
+                }
+                colorsResolved.push(newColor);
+            }
+            return colorsResolved;
+        }
     }
 
     getThemeElements() {
@@ -94,6 +130,46 @@ class ThemeParserClass {
 
     getPixmap(name) {
         return this._pixmaps.get(name);
+    }
+
+    getColor(name) {
+        return this._colors.get(name);
+    }
+
+    getRedOfColor(name) {
+        let color = this._colors.get(name);
+        if (color.colorUsed) {
+            return this.getRedOfColor(color.colorUsed);
+        } else {
+            return color.red;
+        }
+    }
+
+    getGreenOfColor(name) {
+        let color = this._colors.get(name);
+        if (color.colorUsed) {
+            return this.getGreenOfColor(color.colorUsed);
+        } else {
+            return color.green;
+        }
+    }
+
+    getBlueOfColor(name) {
+        let color = this._colors.get(name);
+        if (color.colorUsed) {
+            return this.getBlueOfColor(color.colorUsed);
+        } else {
+            return color.blue;
+        }
+    }
+
+    getAlphaOfColor(name) {
+        let color = this._colors.get(name);
+        if (color.colorUsed && !color.alpha) {
+            return this.getAlphaOfColor(color.colorUsed);
+        } else {
+            return color.alpha;
+        }
     }
 }
 

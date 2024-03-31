@@ -91,7 +91,7 @@ export default {
     generateResult() {
       if("pixmap" === this.radioType) return ThemeParser.getPixmaps();
       if("themeElement" === this.radioType) return ThemeParser.getThemeElements();
-      if("color" === this.radioType) return ThemeParser.getColors();
+      if("color" === this.radioType) return ThemeParser.getColors(true);
     },
 
     generateHeaders() {
@@ -156,23 +156,27 @@ export default {
           width: '400px'
         }, {
           text: 'Red',
-          value: 'red',
+          value: 'resolvedRed',
           align: 'left',
         }, {
           text: 'Green',
-          value: 'green',
+          value: 'resolvedGreen',
           align: 'left',
         }, {
           text: 'Blue',
-          value: 'blue',
+          value: 'resolvedBlue',
           align: 'left',
         }, {
           text: 'Alpha',
-          value: 'alpha',
+          value: 'resolvedAlpha',
           align: 'left',
         }, {
           text: 'Usage',
           value: 'usage.length',
+          align: 'left',
+        }, {
+          text: 'Color Used',
+          value: 'colorUsed',
           align: 'left',
         }
       ]

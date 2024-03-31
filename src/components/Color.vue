@@ -11,6 +11,7 @@
       ></v-color-picker>
       Since : {{ color.since }} <br/>
       <span v-if="color.usage">Usage : {{ color.usage.join(", ") }}</span>
+      <span v-if="color.colorUsed">ColorUsed : {{ color.colorUsed }}</span>
     </v-card-text>
   </v-card>
 </template>
@@ -24,11 +25,11 @@ export default {
   computed: {
     colorObject() {
       return {
-        r: this.color.red,
-        g: this.color.green,
-        b: this.color.blue,
-        a: this.color.alpha,
-      }
+        r: this.color.resolvedRed,
+        g: this.color.resolvedGreen,
+        b: this.color.resolvedBlue,
+        a: this.color.resolvedAlpha,
+      };
     }
   }
 
