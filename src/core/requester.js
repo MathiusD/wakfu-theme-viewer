@@ -2,7 +2,7 @@ export function getJson(url) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         console.log(url);
-        xhr.open('GET', 'https://corsanywhere.herokuapp.com/' + url, true);
+        xhr.open("GET", "https://corsproxy.io/?" + encodeURIComponent(url), true);
         xhr.responseType = 'json';
         xhr.onload = function () {
             const status = xhr.status;
