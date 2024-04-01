@@ -6,6 +6,9 @@
     <v-footer app>
       <small><a target="_blank" href="https://www.wakfu.com/fr/mmorpg">WAKFU MMORPG : © {{new Date().getFullYear()}} Ankama Studio. All rights reserved</a> "wakfu-theme-viewer" and it's derivative services are unofficial websites without any connection with Ankama.</small>
       <v-spacer/>
+      <v-btn x-small href="https://wakfu.cdn.ankama.com/gamedata/theme/theme.zip">
+        Download theme.zip
+      </v-btn>
       <v-btn-toggle :v-model="$vuetify.theme.dark ? 0 : 1">
         <v-btn @click="$vuetify.theme.dark = true" x-small>
           Dark
