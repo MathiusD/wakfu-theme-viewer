@@ -9,7 +9,7 @@ module.exports = {
       splitChunks: false
     },
   },
-  publicPath: process.env.NODE_ENV === 'production' ? '/wakfu-theme-viewer' : '/',
+  publicPath: '/', // Because we have custom domain name
   outputDir: path.resolve(__dirname, "docs"),
   transpileDependencies: [
     'vuetify'
