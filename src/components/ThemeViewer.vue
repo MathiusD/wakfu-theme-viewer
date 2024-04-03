@@ -48,6 +48,24 @@ import {ThemeParser} from "../core/theme-parser.js";
 import Pixmap from "./Pixmap.vue";
 import Color from "./Color.vue";
 
+import { localStorageElementSelected, localStorageRadioTypeSelected } from '../core/utils.js';
+
+let selectedRadioType = localStorage.getItem(localStorageRadioTypeSelected);
+selectedRadioType = selectedRadioType != null ? selectedRadioType : "pixmap";
+let selectedElement = localStorage.getItem(localStorageElementSelected);
+
+const getDefaultElementPerRadioType = (radioType) => {
+  if (radioType == 'pixmap') {
+    return "pmEcosystemFlaskFrame";
+  } else if (radioType == 'themeElement') {
+    return "windowBackground";
+  } else if (radioType == 'color') {
+    return "defaultLightColor";
+  }
+}
+if (!selectedElement) {
+  selectedElement = getDefaultElementPerRadioType(selectedRadioType);
+}
 
 export default {
   name: 'ThemeViewer',
@@ -62,9 +80,8 @@ export default {
   mounted() {
     ThemeParser.loadTheme().then(() => {
       this.loaded = true;
-      this.headers = this.generateHeaders();
-      this.result = this.generateResult();
-      this.currentPixmap = ThemeParser.getPixmap("pmEcosystemFlaskFrame");
+      this.reloadDataTable();
+      this.loadSelectedElement();
     });
   },
 
@@ -76,17 +93,30 @@ export default {
     headers: [],
     result: undefined,
     loaded: false,
-    radioType: "pixmap",
+    radioType: selectedRadioType,
     search: ""
   }),
 
   watch: {
     radioType() {
+      localStorage.setItem(localStorageRadioTypeSelected, this.radioType);
       this.reloadDataTable();
+      selectedElement = getDefaultElementPerRadioType(this.radioType);
+      this.loadSelectedElement();
     }
   },
 
   methods: {
+    loadSelectedElement() {
+      if (this.radioType == 'pixmap') {
+        this.currentPixmap = ThemeParser.getPixmap(selectedElement);
+      } else if (this.radioType == 'themeElement') {
+        this.currentThemeElement = ThemeParser.getThemeElement(selectedElement);
+      } else if (this.radioType == 'color') {
+        this.currentColor = ThemeParser.getColor(selectedElement, true);
+      }
+    },
+
     reloadDataTable() {
       this.headers = this.generateHeaders();
       this.result = this.generateResult();
@@ -94,15 +124,8 @@ export default {
 
     reloadThemeData() {
       ThemeParser.loadTheme(true).then(() => {
-        this.headers = this.generateHeaders();
-        this.result = this.generateResult();
-        if (this.radioType == 'pixmap') {
-          this.currentPixmap = ThemeParser.getPixmap(this.currentPixmap.id);
-        } else if (this.radioType == 'themeElement') {
-          this.currentThemeElement = ThemeParser.getThemeElements(this.currentThemeElement.id);
-        } else if (this.radioType == 'colors') {
-          this.currentColor = ThemeParser.getColor(this.currentColor.id, true);
-        }
+        this.reloadDataTable();
+        this.loadSelectedElement();
       });
     },
 
@@ -202,9 +225,15 @@ export default {
 
     pickElement(event, data) {
       let element = data.item;
-      if("pixmap" === this.radioType) return this.currentPixmap = element;
-      else if("themeElement" === this.radioType) return this.currentThemeElement = element;
-      else if("color" === this.radioType) return this.currentColor = element;
+      selectedElement = element.id;
+      localStorage.setItem(localStorageElementSelected, selectedElement);
+      if ("pixmap" === this.radioType) {
+        this.currentPixmap = element;
+      } else if ("themeElement" === this.radioType) {
+        this.currentThemeElement = element;
+      } else if ("color" === this.radioType) {
+        this.currentColor = element;
+      }
     }
   }
 }
