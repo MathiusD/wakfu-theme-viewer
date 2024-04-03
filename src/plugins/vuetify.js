@@ -8,9 +8,12 @@
 import "@mdi/font/css/materialdesignicons.css";
 import "vuetify/styles";
 import * as components from "vuetify/components";
+import { localStorageThemeKey, defaultWindowTheme } from "../core/utils.js";
 
 // Composables
 import { createVuetify } from "vuetify";
+
+let definedTheme = localStorage.getItem(localStorageThemeKey);
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 export default createVuetify({
@@ -18,16 +21,6 @@ export default createVuetify({
     ...components,
   },
   theme: {
-    // Cf here : https://stackoverflow.com/questions/56393880/how-do-i-detect-dark-mode-using-javascript
-    defaultTheme:
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light",
-  },
-  defaults: {
-    VCard: {
-      variant: "tonal",
-    },
-  },
+    defaultTheme: definedTheme != null ? definedTheme : defaultWindowTheme(),
+  }
 });
