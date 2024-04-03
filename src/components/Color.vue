@@ -1,5 +1,5 @@
 <template>
-  <v-card class="ma-2">
+  <v-card class="ma-2" :variant="vCardVariant">
     <v-card-title>{{ color.id }}</v-card-title>
     <v-card-text>
       <v-color-picker
@@ -20,7 +20,7 @@
 
 export default {
   name: 'Color',
-  props: ['color'],
+  props: ['color','vCardVariant'],
 
   computed: {
     colorObject() {

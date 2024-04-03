@@ -1,4 +1,4 @@
-import {getImage, getJson} from "./requester";
+import {getImage, getJson} from "./requester.js";
 
 const themeUrl = "https://wakfu.cdn.ankama.com/gamedata/theme/theme.json";
 const themeImagePath = (name) => `https://wakfu.cdn.ankama.com/gamedata/theme/images/${name}.png`
