@@ -1,5 +1,8 @@
 export const localStorageThemeKey = 'theme';
 export const localStorageVCardVariant = "vCardVariant";
+export const localStorageJsonThemeData = 'jsonThemeData';
+export const localStorageJsonThemeDataLastFetch = "jsonThemeDataLastFetch";
+export const localStorageTextureKey = "texture";
 
 // Cf here : https://stackoverflow.com/questions/56393880/how-do-i-detect-dark-mode-using-javascript
 export const defaultWindowTheme = () => {

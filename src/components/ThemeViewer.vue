@@ -10,6 +10,7 @@
               <v-radio label="Color" value="color" />
             </v-radio-group>
             <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line />
+            <v-btn @click="reloadThemeData()" icon="mdi-refresh" />
           </v-card-title>
           <v-data-table :headers="headers" :items="result" :search="search" @click:row="pickElement" dense>
 
@@ -81,12 +82,30 @@ export default {
 
   watch: {
     radioType() {
-      this.headers = this.generateHeaders();
-      this.result = this.generateResult();
+      this.reloadDataTable();
     }
   },
 
   methods: {
+    reloadDataTable() {
+      this.headers = this.generateHeaders();
+      this.result = this.generateResult();
+    },
+
+    reloadThemeData() {
+      ThemeParser.loadTheme(true).then(() => {
+        this.headers = this.generateHeaders();
+        this.result = this.generateResult();
+        if (this.radioType == 'pixmap') {
+          this.currentPixmap = ThemeParser.getPixmap(this.currentPixmap.id);
+        } else if (this.radioType == 'themeElement') {
+          this.currentThemeElement = ThemeParser.getThemeElements(this.currentThemeElement.id);
+        } else if (this.radioType == 'colors') {
+          this.currentColor = ThemeParser.getColor(this.currentColor.id, true);
+        }
+      });
+    },
+
     generateResult() {
       if("pixmap" === this.radioType) return ThemeParser.getPixmaps();
       if("themeElement" === this.radioType) return ThemeParser.getThemeElements();

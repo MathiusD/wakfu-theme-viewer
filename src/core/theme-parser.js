@@ -1,8 +1,14 @@
-import {getImage, getJson} from "./requester.js";
+import { getImage, getJson } from "./requester.js";
+import {
+  localStorageJsonThemeData,
+  localStorageJsonThemeDataLastFetch,
+} from "./utils.js";
 
 const themeUrl = "https://wakfu.cdn.ankama.com/gamedata/theme/theme.json";
 const themeImagePath = (name) => `https://wakfu.cdn.ankama.com/gamedata/theme/images/${name}.png`
 const themeImageFileName = (path) => (path.split('theme/images/'))[1].split('.tga')[0];
+
+const cacheResultDuration = 1800000; // 30 min
 
 class ThemeParserClass {
     _theme = undefined;
@@ -11,11 +17,32 @@ class ThemeParserClass {
     _colors = new Map();
     _themeElements = new Map();
 
-    loadTheme() {
-        if(this._theme) return;
+    loadTheme(force = false) {
+        if (!force) {
+            if (this._theme) return new Promise(resolve => { resolve(); });
+
+            let localStorageTheme = localStorage.getItem(localStorageJsonThemeData);
+            let localStorageThemeLastFetch = localStorage.getItem(localStorageJsonThemeDataLastFetch);
+
+            if (localStorageTheme != null && localStorageThemeLastFetch != null &&
+                    Date.now() - localStorageThemeLastFetch <= cacheResultDuration) {
+                return new Promise(resolve => {
+                    this._theme = JSON.parse(localStorageTheme);
+                    this.loadTextures().then(() => {
+                        this.loadPixmaps();
+                        this.loadColors();
+                        this.loadThemeElements();
+                        resolve();
+                    });
+                });
+            }
+        }
+
         return new Promise(resolve => {
             getJson(themeUrl).then(result => {
                 this._theme = result;
+                localStorage.setItem(localStorageJsonThemeDataLastFetch, Date.now());
+                localStorage.setItem(localStorageJsonThemeData, JSON.stringify(this._theme));
                 this.loadTextures().then(() => {
                     this.loadPixmaps();
                     this.loadColors();
@@ -101,7 +128,7 @@ class ThemeParserClass {
         return Array.from(this._pixmaps.values());
     }
 
-    getColors(resolveAttribute) {
+    getColors(resolveAttribute = false) {
         let colors = Array.from(this._colors.values());
         if (!resolveAttribute) {
             return colors;
@@ -109,19 +136,24 @@ class ThemeParserClass {
             let colorsResolved = [];
             for (const colorIndex in colors) {
                 let color = colors[colorIndex];
-                let newColor = {
-                    resolvedRed: color.resolveRed(),
-                    resolvedGreen: color.resolveGreen(),
-                    resolvedBlue: color.resolveBlue(),
-                    resolvedAlpha: color.resolveAlpha(),
-                };
-                for (const key in color) {
-                    newColor[key] = color[key];
-                }
+                let newColor = this.resolveColor(color);
                 colorsResolved.push(newColor);
             }
             return colorsResolved;
         }
+    }
+
+    resolveColor(color) {
+        let newColor = {
+            resolvedRed: color.resolveRed(),
+            resolvedGreen: color.resolveGreen(),
+            resolvedBlue: color.resolveBlue(),
+            resolvedAlpha: color.resolveAlpha(),
+        };
+        for (const key in color) {
+            newColor[key] = color[key];
+        }
+        return newColor;
     }
 
     getThemeElements() {
@@ -132,8 +164,17 @@ class ThemeParserClass {
         return this._pixmaps.get(name);
     }
 
-    getColor(name) {
-        return this._colors.get(name);
+    getThemeElement(name) {
+        return this._themeElements.get(name);
+    }
+
+    getColor(name, resolveAttribute = false) {
+        let color = this._colors.get(name);
+        if (!resolveAttribute) {
+            return color;
+        } else {
+            return this.resolveColor(color);
+        }
     }
 
     getRedOfColor(name) {
