@@ -32,7 +32,7 @@
         </v-card>
         <Pixmap v-for="pixmap of currentThemeElement.pixmaps" :pixmap="pixmap"
           :forcedUsages="currentThemeElement.usage ? currentThemeElement.usage.filter(x => pixmap.usage && !pixmap.usage.includes(x)) : undefined"
-          :key="pixmap.id" />
+          :key="pixmap.id" :vCardVariant="vCardVariant" />
       </v-col>
       <v-col col="6" v-else-if="'color' === radioType && currentColor">
         <Color :color="currentColor" :vCardVariant="vCardVariant" />
