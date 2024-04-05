@@ -27,7 +27,7 @@
             <span v-if="currentThemeElement.type">Type : {{ currentThemeElement.type }} <br /></span>
             <span v-if="currentThemeElement.name">Name : {{ currentThemeElement.name }} <br /></span>
             <span v-if="currentThemeElement.since">Since : {{ currentThemeElement.since }} <br /></span>
-            <span v-if="currentThemeElement.usage">Usage : {{ currentThemeElement.usage.join(", ") }}</span>
+            <Usage v-if="currentThemeElement.usage" :usage="currentThemeElement.usage" />
           </v-card-text>
         </v-card>
         <Pixmap v-for="pixmap of currentThemeElement.pixmaps" :pixmap="pixmap"
@@ -47,6 +47,7 @@
 import { ThemeParser } from "../core/theme-parser.js";
 import Pixmap from "./Pixmap.vue";
 import Color from "./Color.vue";
+import Usage from "./Usage.vue";
 
 import { localStorageElementSelected, localStorageRadioTypeSelected } from '../core/utils.js';
 
@@ -74,7 +75,8 @@ export default {
 
   components: {
     Color,
-    Pixmap
+    Pixmap,
+    Usage,
   },
 
   mounted() {

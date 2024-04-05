@@ -6,13 +6,14 @@
       </v-color-picker>
       <v-select class="ma-2" v-model="mode" :items="modes" style="max-width: 300px" />
       Since : {{ color.since }} <br />
-      <span v-if="color.usage">Usage : {{ color.usage.join(", ") }}</span>
       <span v-if="color.colorUsed">ColorUsed : {{ color.colorUsed }}</span>
+      <Usage v-if="color.usage" :usage="color.usage" />
     </v-card-text>
   </v-card>
 </template>
 
 <script>
+import Usage from "./Usage.vue";
 import { localStorageColorFormatSelected } from '../core/utils.js';
 
 let colorFormatSelected = localStorage.getItem(localStorageColorFormatSelected);
@@ -21,6 +22,7 @@ colorFormatSelected = colorFormatSelected != null ? colorFormatSelected : "rbga"
 export default {
   name: 'Color',
   props: ['color', 'vCardVariant'],
+  components: { Usage },
 
   data: () => ({
     modes: ['rgba', 'hexa'],
