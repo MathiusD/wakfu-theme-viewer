@@ -4,14 +4,14 @@
       <ThemeViewer :vCardVariant="vCardVariant" />
     </v-main>
     <v-footer app>
-      <small><a target="_blank" href="https://www.wakfu.com/fr/mmorpg">WAKFU MMORPG : © {{new Date().getFullYear()}}
+      <small><a target="_blank" href="https://www.wakfu.com/fr/mmorpg">WAKFU MMORPG : © {{ new Date().getFullYear() }}
           Ankama Studio. All rights reserved</a> "wakfu-theme-viewer" and it's derivative services are unofficial
         websites without any connection with Ankama.</small>
       <v-spacer />
       <v-btn size="x-small" href="https://wakfu.cdn.ankama.com/gamedata/theme/theme.zip">
         Download theme.zip
       </v-btn>
-      <v-btn-toggle :v-model="vCardVariant == 'tonal' ? 0 : 1">
+      <v-btn-toggle v-model="vCardVariantBtnToggle">
         <v-btn @click="setVCardVariant('tonal')" size="x-small">
           Tonal Card
         </v-btn>
@@ -20,7 +20,7 @@
           Text Card
         </v-btn>
       </v-btn-toggle>
-      <v-btn-toggle :v-model="followWindowTheme ? 0 : theme.global.current.value.dark ? 1 : 2">
+      <v-btn-toggle v-model="globalThemeBtnToggle">
         <v-btn @click="setThemeFollowWindowTheme()" size="x-small">
           Auto
         </v-btn>
@@ -38,41 +38,38 @@
 </template>
 
 <script setup>
-import { useTheme } from 'vuetify';
-import { localStorageThemeKey, localStorageVCardVariant, defaultWindowTheme } from './core/utils.js';
-
-const theme = useTheme();
-
-let followWindowTheme = localStorage.getItem(localStorageThemeKey) == null;
-
-const setGlobalTheme = (themeName) => {
-  theme.global.name.value = themeName;
-  localStorage.setItem(localStorageThemeKey, themeName);
-  followWindowTheme = false;
-}
-
-const setThemeFollowWindowTheme = () => {
-  let windowTheme = defaultWindowTheme();
-  theme.global.name.value = windowTheme;
-  localStorage.removeItem(localStorageThemeKey);
-  followWindowTheme = true;
-}
 </script>
 
 <script>
 import ThemeViewer from './components/ThemeViewer.vue';
+import { useTheme } from 'vuetify';
+import { localStorageThemeKey, localStorageVCardVariant, defaultWindowTheme } from './core/utils.js';
 
-const definedVCardVariant = localStorage.getItem(localStorageVCardVariant);
+let definedVCardVariant = localStorage.getItem(localStorageVCardVariant);
+definedVCardVariant = definedVCardVariant != null ? definedVCardVariant : 'tonal';
+const definedTheme = localStorage.getItem(localStorageThemeKey);
+const themeIsDefined = definedTheme == null;
 
 export default {
   name: 'App',
+
+  setup() {
+    const theme = useTheme();
+
+    return {
+      theme
+    }
+  },
 
   components: {
     ThemeViewer,
   },
 
   data: () => ({
-    vCardVariant: definedVCardVariant != null ? definedVCardVariant : 'tonal',
+    vCardVariant: definedVCardVariant,
+    followWindowTheme: themeIsDefined,
+    vCardVariantBtnToggle: definedVCardVariant == 'tonal' ? 0 : 1,
+    globalThemeBtnToggle: themeIsDefined ? 0 : this.theme.global.current.value.dark ? 1 : 2,
   }),
 
   methods: {
@@ -80,12 +77,23 @@ export default {
       this.vCardVariant = variant;
       localStorage.setItem(localStorageVCardVariant, variant);
     },
+    setGlobalTheme(themeName) {
+      theme.global.name.value = themeName;
+      localStorage.setItem(localStorageThemeKey, themeName);
+      this.followWindowTheme = false;
+    },
+    setThemeFollowWindowTheme() {
+      let windowTheme = defaultWindowTheme();
+      theme.global.name.value = windowTheme;
+      localStorage.removeItem(localStorageThemeKey);
+      this.followWindowTheme = true;
+    },
   }
 };
 </script>
 
 <style>
-  .v-application .text-center {
-    text-align: left !important;
-  }
+.v-application .text-center {
+  text-align: left !important;
+}
 </style>
