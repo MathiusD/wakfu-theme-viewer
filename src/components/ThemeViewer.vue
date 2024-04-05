@@ -212,6 +212,10 @@ export default {
           key: 'resolvedAlpha',
           align: 'left',
         }, {
+          title: 'Hex',
+          key: 'resolvedHex',
+          align: 'left',
+        }, {
           title: 'Usage',
           key: 'usage.length',
           align: 'left',

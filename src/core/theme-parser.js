@@ -1,5 +1,6 @@
 import { getImage, getJson } from "./requester.js";
 import {
+    RGBAToHexA,
   localStorageJsonThemeData,
   localStorageJsonThemeDataLastFetch,
 } from "./utils.js";
@@ -91,6 +92,9 @@ class ThemeParserClass {
                 resolveAlpha: () => {
                     return ThemeParser.getAlphaOfColor(color.id);
                 },
+                resolveHex: () => {
+                    return ThemeParser.getHexOfColor(color.id);
+                }
             };
             for (const key in color) {
                 newColor[key] = color[key];
@@ -149,6 +153,7 @@ class ThemeParserClass {
             resolvedGreen: color.resolveGreen(),
             resolvedBlue: color.resolveBlue(),
             resolvedAlpha: color.resolveAlpha(),
+            resolvedHex: color.resolveHex(),
         };
         for (const key in color) {
             newColor[key] = color[key];
@@ -211,6 +216,10 @@ class ThemeParserClass {
         } else {
             return color.alpha;
         }
+    }
+
+    getHexOfColor(name) {
+        return RGBAToHexA(this.getRedOfColor(name), this.getGreenOfColor(name), this.getBlueOfColor(name), this.getAlphaOfColor(name));
     }
 }
 
