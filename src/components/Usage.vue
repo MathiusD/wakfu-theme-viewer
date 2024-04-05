@@ -35,6 +35,23 @@ export default {
         open: []
     }),
 
+    mounted() {
+        if (this.usage.length == 0) {
+            this.open = [];
+            return;
+        }
+
+        let themeElementUsageCount = this.themeElementUsage.length;
+        let dialogUsageCount = this.dialogUsage.length;
+        if (themeElementUsageCount > 0 && dialogUsageCount > 0) {
+            this.open = [];
+        } else if (themeElementUsageCount > 0) {
+            this.open = ["parent:themeElement"];
+        } else {
+            this.open = ["parent:dialog"];
+        }
+    },
+
     methods: {
         /**
          * Return use type if exist
