@@ -78,13 +78,13 @@ export default {
       localStorage.setItem(localStorageVCardVariant, variant);
     },
     setGlobalTheme(themeName) {
-      theme.global.name.value = themeName;
+      this.theme.global.name.value = themeName;
       localStorage.setItem(localStorageThemeKey, themeName);
       this.followWindowTheme = false;
     },
     setThemeFollowWindowTheme() {
       let windowTheme = defaultWindowTheme();
-      theme.global.name.value = windowTheme;
+      this.theme.global.name.value = windowTheme;
       localStorage.removeItem(localStorageThemeKey);
       this.followWindowTheme = true;
     },
