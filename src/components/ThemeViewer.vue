@@ -21,18 +21,7 @@
         <Pixmap :pixmap="currentPixmap" :vCardVariant="vCardVariant" />
       </v-col>
       <v-col col="6" v-else-if="'themeElement' === radioType && currentThemeElement">
-        <v-card class="ma-2" :variant="vCardVariant">
-          <v-card-title>{{ currentThemeElement.id }}</v-card-title>
-          <v-card-text>
-            <span v-if="currentThemeElement.type">Type : {{ currentThemeElement.type }} <br /></span>
-            <span v-if="currentThemeElement.name">Name : {{ currentThemeElement.name }} <br /></span>
-            <span v-if="currentThemeElement.since">Since : {{ currentThemeElement.since }} <br /></span>
-            <Usage v-if="currentThemeElement.usage" :usage="currentThemeElement.usage" />
-          </v-card-text>
-        </v-card>
-        <Pixmap v-for="pixmap of currentThemeElement.pixmaps" :pixmap="pixmap"
-          :forcedUsages="currentThemeElement.usage ? currentThemeElement.usage.filter(x => pixmap.usage && !pixmap.usage.includes(x)) : undefined"
-          :key="pixmap.id" :vCardVariant="vCardVariant" />
+        <ThemeElement :theme-element="currentThemeElement" :vCardVariant="vCardVariant" />
       </v-col>
       <v-col col="6" v-else-if="'color' === radioType && currentColor">
         <Color :color="currentColor" :vCardVariant="vCardVariant" />
@@ -46,8 +35,8 @@
 <script>
 import { ThemeParser } from "../core/theme-parser.js";
 import Pixmap from "./Pixmap.vue";
+import ThemeElement from "./ThemeElement.vue";
 import Color from "./Color.vue";
-import Usage from "./Usage.vue";
 
 import { localStorageElementSelected, localStorageRadioTypeSelected } from '../core/utils.js';
 
@@ -75,8 +64,8 @@ export default {
 
   components: {
     Color,
+    ThemeElement,
     Pixmap,
-    Usage,
   },
 
   mounted() {
