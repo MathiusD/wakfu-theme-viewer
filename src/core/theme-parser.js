@@ -1,8 +1,8 @@
 import { getImage, getJson } from "./requester.js";
 import {
     RGBAToHexA,
-  localStorageJsonThemeData,
-  localStorageJsonThemeDataLastFetch,
+    localStorageJsonThemeData,
+    localStorageJsonThemeDataLastFetch,
 } from "./utils.js";
 
 const themeUrl = "https://wakfu.cdn.ankama.com/gamedata/theme/theme.json";
@@ -18,6 +18,13 @@ class ThemeParserClass {
     _colors = new Map();
     _themeElements = new Map();
 
+    /**
+     * Load and resolve theme
+     *  - From localStorage if isn't expired
+     *  - From wakfu.cdn othewise
+     * @param {boolean} force To force reload of theme from cdn
+     * @returns promise or load, empty promise if theme is already loaded
+     */
     loadTheme(force = false) {
         if (!force) {
             if (this._theme) return new Promise(resolve => { resolve(); });
@@ -54,6 +61,10 @@ class ThemeParserClass {
         });
     }
 
+    /**
+     * Load an resolve each texture of theme
+     * @returns promise of load of all textures
+     */
     loadTextures() {
         return new Promise(resolve => {
             const promises = []
@@ -70,6 +81,9 @@ class ThemeParserClass {
         })
     }
 
+    /**
+     * Load each definition of pixmap
+     */
     loadPixmaps() {
         for (const pixmap of this._theme.pixmaps) {
             pixmap.image = this._textures.get(pixmap.texture);
@@ -77,21 +91,50 @@ class ThemeParserClass {
         }
     }
 
+    /**
+     * Load each definition of colors
+     * Colors loaded are some additional methods :
+     *  * resolveRed
+     *  * resolveGreen
+     *  * resolveBlue
+     *  * resolveAlpha
+     *  * resolveHex
+     */
     loadColors() {
         for (const color of this._theme.colors) {
             let newColor = {
+                /**
+                 * Resolve red component
+                 * @returns red component of color
+                 */
                 resolveRed: () => {
                     return ThemeParser.getRedOfColor(color.id);
                 },
+                /**
+                 * Resolve green component
+                 * @returns green component of color
+                 */
                 resolveGreen: () => {
                     return ThemeParser.getBlueOfColor(color.id);
                 },
+                /**
+                 * Resolve blue component
+                 * @returns blue component of color
+                 */
                 resolveBlue: () => {
                     return ThemeParser.getGreenOfColor(color.id);
                 },
+                /**
+                 * Resolve alpha
+                 * @returns alpha of color
+                 */
                 resolveAlpha: () => {
                     return ThemeParser.getAlphaOfColor(color.id);
                 },
+                /**
+                 * Resolve hex representation
+                 * @returns hex representation of color
+                 */
                 resolveHex: () => {
                     return ThemeParser.getHexOfColor(color.id);
                 }
@@ -103,6 +146,9 @@ class ThemeParserClass {
         }
     }
 
+    /**
+     * Load each theme elements
+     */
     loadThemeElements() {
         for (const element of this._theme.themeElement) {
             // data copy
@@ -113,6 +159,11 @@ class ThemeParserClass {
         }
     }
 
+    /**
+     * Resolve each pixmap of theme element
+     * @param {any} flattened JSON of theme element without pixmaps
+     * @param {any} element JSON of theme element with all args
+     */
     flattenThemeElement(flattened, element) {
         if(element.specificPixmaps) {
             for (const pixmap of element.specificPixmaps) {
@@ -128,10 +179,21 @@ class ThemeParserClass {
         }
     }
 
+    /**
+     * To get all pixmaps
+     * @returns array of pixmaps
+     */
     getPixmaps() {
         return Array.from(this._pixmaps.values());
     }
 
+    /**
+     * To get all colors
+     * @param {boolean} resolveAttribute if each utility method
+     * must be resolved (for each resolveX, an arg resolvedX is
+     * added)
+     * @returns array of color
+     */
     getColors(resolveAttribute = false) {
         let colors = Array.from(this._colors.values());
         if (!resolveAttribute) {
@@ -147,6 +209,12 @@ class ThemeParserClass {
         }
     }
 
+    /**
+     * Create a new color with each method resolveX resolved
+     * in attribute resolvedX
+     * @param {any} color color data
+     * @returns new color data with resolved attribute
+     */
     resolveColor(color) {
         let newColor = {
             resolvedRed: color.resolveRed(),
@@ -161,65 +229,134 @@ class ThemeParserClass {
         return newColor;
     }
 
+    /**
+     * To get all theme elements
+     * @returns array of theme elements
+     */
     getThemeElements() {
         return Array.from(this._themeElements.values());
     }
 
+    /**
+     * Get specific pixmap by id
+     * @param {String} name id of pixmap
+     * @returns pixmap related, null otherwise
+     */
     getPixmap(name) {
         return this._pixmaps.get(name);
     }
 
+    /**
+     * Get specific theme element by id
+     * @param {String} name id of theme element
+     * @returns theme element related, null otherwise
+     */
     getThemeElement(name) {
         return this._themeElements.get(name);
     }
 
+    /**
+     * Get specific color by id
+     * @param {String} name id of color
+     * @param {boolean} resolveAttribute to resolve attributes
+     * (Like in resolveColor and in getColors)
+     * @returns color related, null otherwise
+     */
     getColor(name, resolveAttribute = false) {
         let color = this._colors.get(name);
         if (!resolveAttribute) {
             return color;
-        } else {
+        } else if (color) {
             return this.resolveColor(color);
+        } else {
+            return null;
         }
     }
 
+    /**
+     * Resolve red component of color
+     * @param {String} name id of color
+     * @returns red component, null if color isn't exist
+     */
     getRedOfColor(name) {
         let color = this._colors.get(name);
         if (color.colorUsed) {
             return this.getRedOfColor(color.colorUsed);
-        } else {
+        } else if (color) {
             return color.red;
+        } else {
+            return null;
         }
     }
 
+    /**
+     * Resolve green component of color
+     * @param {String} name id of color
+     * @returns green component, null if color isn't exist
+     */
     getGreenOfColor(name) {
         let color = this._colors.get(name);
         if (color.colorUsed) {
             return this.getGreenOfColor(color.colorUsed);
-        } else {
+        } else if (color) {
             return color.green;
+        } else {
+            return null;
         }
     }
 
+    /**
+     * Resolve blue component of color
+     * @param {String} name id of color
+     * @returns blue component, null if color isn't exist
+     */
     getBlueOfColor(name) {
         let color = this._colors.get(name);
         if (color.colorUsed) {
             return this.getBlueOfColor(color.colorUsed);
-        } else {
+        } else if (color) {
             return color.blue;
+        } else {
+            return null;
         }
     }
 
+    /**
+     * Resolve alpha of color
+     * @param {String} name id of color
+     * @returns alpha, null if color isn't exist
+     * (or alpha isn't specified)
+     */
     getAlphaOfColor(name) {
         let color = this._colors.get(name);
         if (color.colorUsed && !color.alpha) {
             return this.getAlphaOfColor(color.colorUsed);
-        } else {
+        } else if (color) {
             return color.alpha;
+        } else {
+            return null;
         }
     }
 
+    /**
+     * Resolve hex representation of color
+     * @param {String} name id of color
+     * @returns hex representation, null if color isn't exist
+     */
     getHexOfColor(name) {
-        return RGBAToHexA(this.getRedOfColor(name), this.getGreenOfColor(name), this.getBlueOfColor(name), this.getAlphaOfColor(name));
+        let red = this.getRedOfColor(name);
+        if (!red) return null;
+
+        let green = this.getGreenOfColor(name);
+        if (!green) return null;
+
+        let blue = this.getBlueOfColor(name);
+        if (!blue) return null;
+
+        let alpha = this.getAlphaOfColor(name);
+        // Alpha isn't mandatory
+
+        return RGBAToHexA(red, green, blue, alpha);
     }
 }
 
