@@ -189,44 +189,10 @@ class ThemeParserClass {
 
     /**
      * To get all colors
-     * @param {boolean} resolveAttribute if each utility method
-     * must be resolved (for each resolveX, an arg resolvedX is
-     * added)
      * @returns array of color
      */
-    getColors(resolveAttribute = false) {
-        let colors = Array.from(this._colors.values());
-        if (!resolveAttribute) {
-            return colors;
-        } else {
-            let colorsResolved = [];
-            for (const colorIndex in colors) {
-                let color = colors[colorIndex];
-                let newColor = this.resolveColor(color);
-                colorsResolved.push(newColor);
-            }
-            return colorsResolved;
-        }
-    }
-
-    /**
-     * Create a new color with each method resolveX resolved
-     * in attribute resolvedX
-     * @param {any} color color data
-     * @returns new color data with resolved attribute
-     */
-    resolveColor(color) {
-        let newColor = {
-            resolvedRed: color.resolveRed(),
-            resolvedGreen: color.resolveGreen(),
-            resolvedBlue: color.resolveBlue(),
-            resolvedAlpha: color.resolveAlpha(),
-            resolvedHex: color.resolveHex(),
-        };
-        for (const key in color) {
-            newColor[key] = color[key];
-        }
-        return newColor;
+    getColors() {
+        return Array.from(this._colors.values());
     }
 
     /**
@@ -258,19 +224,10 @@ class ThemeParserClass {
     /**
      * Get specific color by id
      * @param {String} name id of color
-     * @param {boolean} resolveAttribute to resolve attributes
-     * (Like in resolveColor and in getColors)
      * @returns color related, null otherwise
      */
-    getColor(name, resolveAttribute = false) {
-        let color = this._colors.get(name);
-        if (!resolveAttribute) {
-            return color;
-        } else if (color) {
-            return this.resolveColor(color);
-        } else {
-            return null;
-        }
+    getColor(name) {
+        return this._colors.get(name);
     }
 
     /**

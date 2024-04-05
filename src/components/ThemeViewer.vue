@@ -188,23 +188,28 @@ export default {
           width: '400px'
         }, {
           title: 'Red',
-          key: 'resolvedRed',
+          key: 'red',
+          value: color => color.resolveRed(),
           align: 'left',
         }, {
           title: 'Green',
-          key: 'resolvedGreen',
+          key: 'green',
+          value: color => color.resolveGreen(),
           align: 'left',
         }, {
           title: 'Blue',
-          key: 'resolvedBlue',
+          key: 'blue',
+          value: color => color.resolveBlue(),
           align: 'left',
         }, {
           title: 'Alpha',
-          key: 'resolvedAlpha',
+          key: 'alpha',
+          value: color => color.resolveAlpha(),
           align: 'left',
         }, {
           title: 'Hex',
-          key: 'resolvedHex',
+          key: 'hex',
+          value: color => color.resolveHex(),
           align: 'left',
         }, {
           title: 'Usage',

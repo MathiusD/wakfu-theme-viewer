@@ -38,10 +38,10 @@ export default {
   computed: {
     colorObject() {
       return {
-        r: this.color.resolvedRed,
-        g: this.color.resolvedGreen,
-        b: this.color.resolvedBlue,
-        a: this.color.resolvedAlpha,
+        r: this.color.resolveRed(),
+        g: this.color.resolveGreen(),
+        b: this.color.resolveBlue(),
+        a: this.color.resolveAlpha(),
       };
     }
   }
