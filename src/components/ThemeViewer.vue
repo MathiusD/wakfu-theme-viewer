@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import {ThemeParser} from "../core/theme-parser.js";
+import { ThemeParser } from "../core/theme-parser.js";
 import Pixmap from "./Pixmap.vue";
 import Color from "./Color.vue";
 
@@ -130,13 +130,13 @@ export default {
     },
 
     generateResult() {
-      if("pixmap" === this.radioType) return ThemeParser.getPixmaps();
-      if("themeElement" === this.radioType) return ThemeParser.getThemeElements();
-      if("color" === this.radioType) return ThemeParser.getColors(true);
+      if ("pixmap" === this.radioType) return ThemeParser.getPixmaps();
+      if ("themeElement" === this.radioType) return ThemeParser.getThemeElements();
+      if ("color" === this.radioType) return ThemeParser.getColors(true);
     },
 
     generateHeaders() {
-      if("pixmap" === this.radioType) return [
+      if ("pixmap" === this.radioType) return [
         {
           title: "ID",
           key: 'id',
@@ -169,7 +169,7 @@ export default {
           align: 'left',
         }
       ]
-      else if("themeElement" === this.radioType) return [
+      else if ("themeElement" === this.radioType) return [
         {
           title: "ID",
           key: 'id',
@@ -189,7 +189,7 @@ export default {
           align: 'left',
         }
       ]
-      else if("color" === this.radioType) return [
+      else if ("color" === this.radioType) return [
         {
           title: "ID",
           key: 'id',
