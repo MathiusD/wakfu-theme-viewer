@@ -2,14 +2,10 @@
   <v-card class="ma-2" :variant="vCardVariant">
     <v-card-title>{{ color.id }}</v-card-title>
     <v-card-text>
-      <v-color-picker
-          class="ma-2"
-          hide-mode-switch
-          mode="rgba"
-          v-model="colorObject"
-          disabled
-      ></v-color-picker>
-      Since : {{ color.since }} <br/>
+      <v-color-picker class="ma-2" v-model="colorObject" v-model:mode="mode" :modes="modes" hide-mode-switch disabled>
+      </v-color-picker>
+      <v-select class="ma-2" v-model="mode" :items="modes" style="max-width: 300px" />
+      Since : {{ color.since }} <br />
       <span v-if="color.usage">Usage : {{ color.usage.join(", ") }}</span>
       <span v-if="color.colorUsed">ColorUsed : {{ color.colorUsed }}</span>
     </v-card-text>
@@ -17,10 +13,25 @@
 </template>
 
 <script>
+import { localStorageColorFormatSelected } from '../core/utils.js';
+
+let colorFormatSelected = localStorage.getItem(localStorageColorFormatSelected);
+colorFormatSelected = colorFormatSelected != null ? colorFormatSelected : "rbga";
 
 export default {
   name: 'Color',
-  props: ['color','vCardVariant'],
+  props: ['color', 'vCardVariant'],
+
+  data: () => ({
+    modes: ['rgba', 'hexa'],
+    mode: colorFormatSelected,
+  }),
+
+  watch: {
+    mode() {
+      localStorage.setItem(localStorageColorFormatSelected, this.mode);
+    }
+  },
 
   computed: {
     colorObject() {
