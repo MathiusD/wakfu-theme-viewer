@@ -122,7 +122,7 @@ export default {
       } else if (this.radioType == 'themeElement') {
         this.currentThemeElement = ThemeParser.getThemeElement(selectedElement);
       } else if (this.radioType == 'color') {
-        this.currentColor = ThemeParser.getColor(selectedElement, true);
+        this.currentColor = ThemeParser.getColor(selectedElement);
       } else if (this.radioType == 'appSkinPart') {
         this.currentAppSkinPart = ThemeParser.getAppSkinPart(selectedElement);
       }
@@ -143,7 +143,7 @@ export default {
     generateResult() {
       if ("pixmap" === this.radioType) return ThemeParser.getPixmaps();
       if ("themeElement" === this.radioType) return ThemeParser.getThemeElements();
-      if ("color" === this.radioType) return ThemeParser.getColors(true);
+      if ("color" === this.radioType) return ThemeParser.getColors();
       if ("appSkinPart" == this.radioType) return ThemeParser.getAppSkinParts();
     },
 
