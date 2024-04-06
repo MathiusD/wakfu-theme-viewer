@@ -1,7 +1,7 @@
 <template>
   <div class="ma-6">
     <v-row>
-      <v-col col="7">
+      <v-col col="7" class="w-50">
         <v-card :variant="vCardVariant">
           <v-card-title class="d-flex flex-row">
             <v-radio-group v-model="radioType" inline>
@@ -27,19 +27,14 @@
           </v-data-table>
         </v-card>
       </v-col>
-      <v-col col="6" v-if="'pixmap' === radioType && currentPixmap">
-        <Pixmap :pixmap="currentPixmap" :vCardVariant="vCardVariant" />
-      </v-col>
-      <v-col col="6" v-else-if="'themeElement' === radioType && currentThemeElement">
-        <ThemeElement :theme-element="currentThemeElement" :vCardVariant="vCardVariant" />
-      </v-col>
-      <v-col col="6" v-else-if="'color' === radioType && currentColor">
-        <Color :color="currentColor" :vCardVariant="vCardVariant" />
-      </v-col>
-      <v-col col="6" v-else-if="'appSkinPart' === radioType && currentAppSkinPart">
-        <AppSkinPart :appSkinPart="currentAppSkinPart" :vCardVariant="vCardVariant" />
-      </v-col>
-      <v-col col="6" v-else></v-col>
+      <v-col col="6" class="w-50">
+        <Pixmap v-if="'pixmap' === radioType && currentPixmap" :pixmap="currentPixmap" :vCardVariant="vCardVariant" />
+        <ThemeElement v-else-if="'themeElement' === radioType && currentThemeElement"
+          :theme-element="currentThemeElement" :vCardVariant="vCardVariant" />
+        <Color v-else-if="'color' === radioType && currentColor" :color="currentColor" :vCardVariant="vCardVariant" />
+        <AppSkinPart v-else-if="'appSkinPart' === radioType && currentAppSkinPart" :appSkinPart="currentAppSkinPart"
+          :vCardVariant="vCardVariant" />
+        </v-col>
     </v-row>
 
   </div>
