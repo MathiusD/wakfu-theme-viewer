@@ -5,9 +5,11 @@ import {
     localStorageJsonThemeDataLastFetch,
 } from "./utils.js";
 
-const themeUrl = "https://wakfu.cdn.ankama.com/gamedata/theme/theme.json";
-const themeImagePath = (name) => `https://wakfu.cdn.ankama.com/gamedata/theme/images/${name}.png`
+const cdnUrl = "https://wakfu.cdn.ankama.com/gamedata/";
+const themeUrl = `${cdnUrl}theme/theme.json`;
+const themeImagePath = (name) => `${cdnUrl}theme/images/${name}.png`;
 const themeImageFileName = (path) => (path.split('theme/images/'))[1].split('.tga')[0];
+const themeSkinPartFileName = (path) => (path.split('theme/appSkin/'))[1].split('.png')[0];
 
 const cacheResultDuration = 1800000; // 30 min
 
@@ -17,6 +19,7 @@ class ThemeParserClass {
     _pixmaps = new Map();
     _colors = new Map();
     _themeElements = new Map();
+    _appSkinParts = new Map();
 
     /**
      * Load and resolve theme
@@ -40,6 +43,7 @@ class ThemeParserClass {
                         this.loadPixmaps();
                         this.loadColors();
                         this.loadThemeElements();
+                        this.loadAppSkinParts();
                         resolve();
                     });
                 });
@@ -55,6 +59,7 @@ class ThemeParserClass {
                     this.loadPixmaps();
                     this.loadColors();
                     this.loadThemeElements();
+                    this.loadAppSkinParts();
                     resolve();
                 })
             })
@@ -180,6 +185,19 @@ class ThemeParserClass {
     }
 
     /**
+     * Load each app skin parts
+     */
+    loadAppSkinParts() {
+        for (const _appSkinPart of this._theme.appSkinParts) {
+            // data copy
+            let appSkinPart = JSON.parse(JSON.stringify(_appSkinPart));
+            appSkinPart.id = themeSkinPartFileName(appSkinPart.path);
+            appSkinPart.assetUrl = `${cdnUrl}${appSkinPart.path}`;
+            this._appSkinParts.set(appSkinPart.id, appSkinPart);
+        }
+    }
+
+    /**
      * To get all pixmaps
      * @returns array of pixmaps
      */
@@ -204,6 +222,14 @@ class ThemeParserClass {
     }
 
     /**
+     * To get all app skin parts
+     * @returns array of app skin parts
+     */
+    getAppSkinParts() {
+        return Array.from(this._appSkinParts.values());
+    }
+
+    /**
      * Get specific pixmap by id
      * @param {String} name id of pixmap
      * @returns pixmap related, null otherwise
@@ -219,6 +245,15 @@ class ThemeParserClass {
      */
     getThemeElement(name) {
         return this._themeElements.get(name);
+    }
+
+    /**
+     * Get specific app skin part by id
+     * @param {String} name id of app skin part
+     * @returns app skin part related, null otherwise
+     */
+    getAppSkinPart(name) {
+        return this._appSkinParts.get(name);
     }
 
     /**

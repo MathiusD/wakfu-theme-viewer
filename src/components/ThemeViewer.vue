@@ -8,6 +8,7 @@
               <v-radio label="Pixmap" value="pixmap" />
               <v-radio label="Theme Element" value="themeElement" />
               <v-radio label="Color" value="color" />
+              <v-radio label="App Skin Part" value="appSkinPart" />
             </v-radio-group>
             <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line />
             <v-btn @click="reloadThemeData()" icon="mdi-refresh" />
@@ -35,6 +36,9 @@
       <v-col col="6" v-else-if="'color' === radioType && currentColor">
         <Color :color="currentColor" :vCardVariant="vCardVariant" />
       </v-col>
+      <v-col col="6" v-else-if="'appSkinPart' === radioType && currentAppSkinPart">
+        <AppSkinPart :appSkinPart="currentAppSkinPart" :vCardVariant="vCardVariant" />
+      </v-col>
       <v-col col="6" v-else></v-col>
     </v-row>
 
@@ -46,6 +50,7 @@ import { ThemeParser } from "../core/theme-parser.js";
 import Pixmap from "./Pixmap.vue";
 import ThemeElement from "./ThemeElement.vue";
 import Color from "./Color.vue";
+import AppSkinPart from "./AppSkinPart.vue";
 
 import { localStorageElementSelected, localStorageRadioTypeSelected } from '../core/utils.js';
 
@@ -60,6 +65,8 @@ const getDefaultElementPerRadioType = (radioType) => {
     return "windowBackground";
   } else if (radioType == 'color') {
     return "defaultLightColor";
+  } else if (radioType == 'appSkinPart') {
+    return "BorderTop";
   }
 }
 if (!selectedElement) {
@@ -72,9 +79,10 @@ export default {
   props: ['vCardVariant'],
 
   components: {
-    Color,
-    ThemeElement,
     Pixmap,
+    ThemeElement,
+    Color,
+    AppSkinPart,
   },
 
   mounted() {
@@ -90,6 +98,7 @@ export default {
     currentColor: undefined,
     currentPixmap: undefined,
     currentThemeElement: undefined,
+    currentAppSkinPart: undefined,
     headers: [],
     result: undefined,
     loaded: false,
@@ -114,6 +123,8 @@ export default {
         this.currentThemeElement = ThemeParser.getThemeElement(selectedElement);
       } else if (this.radioType == 'color') {
         this.currentColor = ThemeParser.getColor(selectedElement, true);
+      } else if (this.radioType == 'appSkinPart') {
+        this.currentAppSkinPart = ThemeParser.getAppSkinPart(selectedElement);
       }
     },
 
@@ -133,6 +144,7 @@ export default {
       if ("pixmap" === this.radioType) return ThemeParser.getPixmaps();
       if ("themeElement" === this.radioType) return ThemeParser.getThemeElements();
       if ("color" === this.radioType) return ThemeParser.getColors(true);
+      if ("appSkinPart" == this.radioType) return ThemeParser.getAppSkinParts();
     },
 
     generateHeaders() {
@@ -231,10 +243,20 @@ export default {
           align: 'left',
         }
       ]
+      else if ("appSkinPart" == this.radioType) return [
+        {
+          title: "ID",
+          key: "id",
+        }, {
+          title: "Path",
+          key: "path",
+        }
+      ]
     },
 
     pickElement(event, data) {
       let element = data.item;
+      let selectedElement;
       selectedElement = element.id;
       localStorage.setItem(localStorageElementSelected, selectedElement);
       if ("pixmap" === this.radioType) {
@@ -243,6 +265,8 @@ export default {
         this.currentThemeElement = element;
       } else if ("color" === this.radioType) {
         this.currentColor = element;
+      } else if ("appSkinPart" === this.radioType) {
+        this.currentAppSkinPart = element;
       }
     }
   }
