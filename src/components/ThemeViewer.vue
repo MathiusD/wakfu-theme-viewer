@@ -12,8 +12,17 @@
             <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line />
             <v-btn @click="reloadThemeData()" icon="mdi-refresh" />
           </v-card-title>
-          <v-data-table :headers="headers" :items="result" :search="search" @click:row="pickElement" dense>
-
+          <v-data-table :headers="headers" :items="result" v-model:search="search" @click:row="pickElement" dense>
+            <template v-slot:item.pixmaps="{ item }">
+              <div v-if="item.pixmaps && item.pixmaps.length > 0">
+                {{ item.pixmaps.length }}
+              </div>
+            </template>
+            <template v-slot:item.usage="{ item }">
+              <div v-if="item.usage && item.usage.length > 0">
+                {{ item.usage.length }}
+              </div>
+            </template>
           </v-data-table>
         </v-card>
       </v-col>
@@ -140,7 +149,7 @@ export default {
           width: '200px'
         }, {
           title: 'Usage',
-          key: 'usage.length',
+          key: 'usage',
           align: 'left',
         }, {
           title: 'X',
@@ -168,11 +177,12 @@ export default {
           width: '400px'
         }, {
           title: 'Pixmaps',
-          key: 'pixmaps.length',
+          key: 'pixmaps',
+          value: themeElement => themeElement.pixmaps.map(pixmap => pixmap.id),
           align: 'left',
         }, {
           title: 'Usage',
-          key: 'usage.length',
+          key: 'usage',
           align: 'left',
         }, {
           title: 'Type',
@@ -213,7 +223,7 @@ export default {
           align: 'left',
         }, {
           title: 'Usage',
-          key: 'usage.length',
+          key: 'usage',
           align: 'left',
         }, {
           title: 'Color Used',
