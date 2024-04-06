@@ -15,7 +15,7 @@
           <v-data-table :headers="headers" :items="result" v-model:search="search" @click:row="pickElement" dense>
             <template v-slot:item.pixmaps="{ item }">
               <div v-if="item.pixmaps && item.pixmaps.length > 0">
-                {{ item.pixmaps.length }}
+                {{ item.pixmaps.length }} ({{ item.pixmaps.filter(p => p.id).length }} named)
               </div>
             </template>
             <template v-slot:item.usage="{ item }">
