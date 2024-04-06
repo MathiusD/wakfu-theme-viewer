@@ -30,7 +30,7 @@ class ThemeParserClass {
      */
     loadTheme(force = false) {
         if (!force) {
-            if (this._theme) return new Promise(resolve => { resolve(); });
+            if (this._theme != null) return new Promise(resolve => { resolve(); });
 
             let localStorageTheme = localStorage.getItem(localStorageJsonThemeData);
             let localStorageThemeLastFetch = localStorage.getItem(localStorageJsonThemeDataLastFetch);
@@ -170,14 +170,14 @@ class ThemeParserClass {
      * @param {any} element JSON of theme element with all args
      */
     flattenThemeElement(flattened, element) {
-        if(element.specificPixmaps) {
+        if(element.specificPixmaps != null) {
             for (const pixmap of element.specificPixmaps) {
                 pixmap.image = this._textures.get(pixmap.texture);
                 flattened.pixmaps.push(pixmap);
             }
         }
 
-        if(element.childrenThemeElements) {
+        if(element.childrenThemeElements != null) {
             for (const sub of element.childrenThemeElements) {
                 this.flattenThemeElement(flattened, sub);
             }
@@ -274,7 +274,7 @@ class ThemeParserClass {
         let color = this._colors.get(name);
         if (color.colorUsed) {
             return this.getRedOfColor(color.colorUsed);
-        } else if (color) {
+        } else if (color != null) {
             return color.red;
         } else {
             return null;
@@ -290,7 +290,7 @@ class ThemeParserClass {
         let color = this._colors.get(name);
         if (color.colorUsed) {
             return this.getGreenOfColor(color.colorUsed);
-        } else if (color) {
+        } else if (color != null) {
             return color.green;
         } else {
             return null;
@@ -306,7 +306,7 @@ class ThemeParserClass {
         let color = this._colors.get(name);
         if (color.colorUsed) {
             return this.getBlueOfColor(color.colorUsed);
-        } else if (color) {
+        } else if (color != null) {
             return color.blue;
         } else {
             return null;
@@ -323,7 +323,7 @@ class ThemeParserClass {
         let color = this._colors.get(name);
         if (color.colorUsed && !color.alpha) {
             return this.getAlphaOfColor(color.colorUsed);
-        } else if (color) {
+        } else if (color != null) {
             return color.alpha;
         } else {
             return null;
@@ -337,13 +337,13 @@ class ThemeParserClass {
      */
     getHexOfColor(name) {
         let red = this.getRedOfColor(name);
-        if (!red) return null;
+        if (red == null) return null;
 
         let green = this.getGreenOfColor(name);
-        if (!green) return null;
+        if (green == null) return null;
 
         let blue = this.getBlueOfColor(name);
-        if (!blue) return null;
+        if (blue == null) return null;
 
         let alpha = this.getAlphaOfColor(name);
         // Alpha isn't mandatory
