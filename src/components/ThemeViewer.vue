@@ -27,14 +27,14 @@
           </v-data-table>
         </v-card>
       </v-col>
-      <v-col col="6" class="w-50">
+      <v-col col="6" :class="dataViewerClass">
         <Pixmap v-if="'pixmap' === radioType && currentPixmap" :pixmap="currentPixmap" :vCardVariant="vCardVariant" />
         <ThemeElement v-else-if="'themeElement' === radioType && currentThemeElement"
           :theme-element="currentThemeElement" :vCardVariant="vCardVariant" />
         <Color v-else-if="'color' === radioType && currentColor" :color="currentColor" :vCardVariant="vCardVariant" />
         <AppSkinPart v-else-if="'appSkinPart' === radioType && currentAppSkinPart" :appSkinPart="currentAppSkinPart"
           :vCardVariant="vCardVariant" />
-        </v-col>
+      </v-col>
     </v-row>
 
   </div>
@@ -68,10 +68,14 @@ if (!selectedElement) {
   selectedElement = getDefaultElementPerRadioType(selectedRadioType);
 }
 
+const getDataViewerClass = (dataViewerPosition) => {
+  return dataViewerPosition == 'sticky' ? 'w-50 data-visualiser-sticky' : 'w-50';
+}
+
 export default {
   name: 'ThemeViewer',
 
-  props: ['vCardVariant'],
+  props: ['vCardVariant', 'dataViewerPosition'],
 
   components: {
     Pixmap,
@@ -86,6 +90,7 @@ export default {
       this.reloadDataTable();
       this.loadSelectedElement();
     });
+    this.dataViewerClass = getDataViewerClass(this.dataViewerPosition);
   },
 
   data: () => ({
@@ -98,7 +103,8 @@ export default {
     result: undefined,
     loaded: false,
     radioType: selectedRadioType,
-    search: ""
+    search: "",
+    dataViewerClass: "",
   }),
 
   watch: {
@@ -107,7 +113,10 @@ export default {
       this.reloadDataTable();
       selectedElement = getDefaultElementPerRadioType(this.radioType);
       this.loadSelectedElement();
-    }
+    },
+    dataViewerPosition() {
+      this.dataViewerClass = getDataViewerClass(this.dataViewerPosition);
+    },
   },
 
   methods: {
@@ -263,7 +272,14 @@ export default {
       } else if ("appSkinPart" === this.radioType) {
         this.currentAppSkinPart = element;
       }
-    }
+    },
   }
 }
 </script>
+
+<style scoped>
+.data-visualiser-sticky> :not(.not-sticky) {
+  position: sticky;
+  top: 1.5vh;
+}
+</style>

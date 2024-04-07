@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-main>
-      <ThemeViewer :vCardVariant="vCardVariant" />
+      <ThemeViewer :vCardVariant="vCardVariant" :dataViewerPosition="dataViewerPosition" />
     </v-main>
     <v-footer app>
       <small><a target="_blank" href="https://www.wakfu.com/fr/mmorpg">WAKFU MMORPG : © {{ new Date().getFullYear() }}
@@ -11,6 +11,16 @@
       <v-btn size="x-small" href="https://wakfu.cdn.ankama.com/gamedata/theme/theme.zip">
         Download theme.zip
       </v-btn>
+      <small>Data Viewer : </small>
+      <v-btn-toggle v-model="dataViewerPositionBtnToggle">
+        <v-btn @click="setDataViewerPosition()" size="x-small">
+          Not Sticky
+        </v-btn>
+
+        <v-btn @click="setDataViewerPosition('sticky')" size="x-small">
+          Sticky
+        </v-btn>
+      </v-btn-toggle>
       <v-btn-toggle v-model="vCardVariantBtnToggle">
         <v-btn @click="setVCardVariant('tonal')" size="x-small">
           Tonal Card
@@ -43,12 +53,14 @@
 <script>
 import ThemeViewer from './components/ThemeViewer.vue';
 import { useTheme } from 'vuetify';
-import { localStorageThemeKey, localStorageVCardVariant, defaultWindowTheme } from './core/utils.js';
+import { localStorageThemeKey, localStorageVCardVariant, localStorageDataViewerPosition, defaultWindowTheme } from './core/utils.js';
 
 let definedVCardVariant = localStorage.getItem(localStorageVCardVariant);
 definedVCardVariant = definedVCardVariant != null ? definedVCardVariant : 'tonal';
 const definedTheme = localStorage.getItem(localStorageThemeKey);
 const themeIsDefined = definedTheme == null;
+let selectedDataViewerPosition = localStorage.getItem(localStorageDataViewerPosition);
+selectedDataViewerPosition = selectedDataViewerPosition != null ? selectedDataViewerPosition : '';
 
 export default {
   name: 'App',
@@ -68,8 +80,10 @@ export default {
   data: () => ({
     vCardVariant: definedVCardVariant,
     followWindowTheme: themeIsDefined,
+    dataViewerPosition: selectedDataViewerPosition,
     vCardVariantBtnToggle: definedVCardVariant == 'tonal' ? 0 : 1,
     globalThemeBtnToggle: themeIsDefined ? 0 : this.theme.global.current.value.dark ? 1 : 2,
+    dataViewerPositionBtnToggle: selectedDataViewerPosition == 'sticky' ? 1 : 0,
   }),
 
   methods: {
@@ -88,6 +102,10 @@ export default {
       localStorage.removeItem(localStorageThemeKey);
       this.followWindowTheme = true;
     },
+    setDataViewerPosition(position) {
+      this.dataViewerPosition = position;
+      localStorage.setItem(localStorageDataViewerPosition, position);
+    }
   }
 };
 </script>
