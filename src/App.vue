@@ -1,5 +1,15 @@
 <template>
   <v-app>
+    <v-system-bar app>
+      <span>Wakfu Theme Viewer</span>
+      <v-spacer />
+      <v-btn size="x-small" :href="documentationLink">
+        Documentation (Forum Post)
+      </v-btn>
+      <v-btn size="x-small" href="https://wakfu.cdn.ankama.com/gamedata/theme/theme.zip">
+        Download theme.zip
+      </v-btn>
+    </v-system-bar>
     <v-main>
       <ThemeViewer :vCardVariant="vCardVariant" :dataViewerPosition="dataViewerPosition" />
     </v-main>
@@ -8,9 +18,6 @@
           Ankama Studio. All rights reserved</a> "wakfu-theme-viewer" and it's derivative services are unofficial
         websites without any connection with Ankama.</small>
       <v-spacer />
-      <v-btn size="x-small" href="https://wakfu.cdn.ankama.com/gamedata/theme/theme.zip">
-        Download theme.zip
-      </v-btn>
       <small>Data Viewer : </small>
       <v-btn-toggle v-model="dataViewerPositionBtnToggle">
         <v-btn @click="setDataViewerPosition()" size="x-small">
@@ -62,6 +69,8 @@ const themeIsDefined = definedTheme == null;
 let selectedDataViewerPosition = localStorage.getItem(localStorageDataViewerPosition);
 selectedDataViewerPosition = selectedDataViewerPosition != null ? selectedDataViewerPosition : '';
 
+let language = window.navigator.userLanguage || window.navigator.language;
+
 export default {
   name: 'App',
 
@@ -84,6 +93,10 @@ export default {
     vCardVariantBtnToggle: definedVCardVariant == 'tonal' ? 0 : 1,
     globalThemeBtnToggle: themeIsDefined ? 0 : this.theme.global.current.value.dark ? 1 : 2,
     dataViewerPositionBtnToggle: selectedDataViewerPosition == 'sticky' ? 1 : 0,
+    documentationLink: language.includes("fr") ?
+      "https://www.wakfu.com/fr/forum/514-themes-personnalises/425922-installation-creation-themes-interface-personnalises" :
+      "https://www.wakfu.com/en/forum/332-development/241635-installing-creating-custom-ui-themes"
+      ,
   }),
 
   methods: {
