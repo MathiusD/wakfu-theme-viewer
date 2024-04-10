@@ -3,7 +3,7 @@
     <v-system-bar app>
       <span>Wakfu Theme Viewer</span>
       <v-spacer />
-      <v-btn size="x-small" :href="documentationLink">
+      <v-btn size="x-small" :href="documentationLink" target="_blank">
         Documentation (Forum Post)
       </v-btn>
       <v-btn size="x-small" href="https://wakfu.cdn.ankama.com/gamedata/theme/theme.zip">
