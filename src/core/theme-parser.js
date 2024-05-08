@@ -371,7 +371,7 @@ class ThemeParserClass {
         let colorCode = '';
         if (color.colorUsed) {
             colorCode = color.colorUsed;
-            if (color.alpha) {
+            if (color.alpha && color.alpha != 100) {
                 colorCode += '@' + color.alpha / 100;
             }
         } else if (color) {
@@ -382,7 +382,7 @@ class ThemeParserClass {
                   floatWithMaxDigit(color.red / 255) +
                   ',' + floatWithMaxDigit(color.green / 255) +
                   ',' + floatWithMaxDigit(color.blue / 255);
-                if (color.alpha) {
+                if (color.alpha && color.alpha != 100) {
                     colorCode += ',' + floatWithMaxDigit(color.alpha / 100);
                 }
             }

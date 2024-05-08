@@ -52,7 +52,7 @@ export const RGBAToHexA = (red, green, blue, alpha = null) => {
     let redHex = byteToHex(red);
     let greenHex = byteToHex(green);
     let blueHex = byteToHex(blue);
-    let alphaHex = alpha != null ? byteToHex(decimalToByte(alpha / 100)) : null;
+    let alphaHex = alpha != null && alpha != 100 ? byteToHex(decimalToByte(alpha / 100)) : null;
     return (
       "#" +
       formatHex(redHex) +
