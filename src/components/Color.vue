@@ -5,6 +5,15 @@
       <v-color-picker class="ma-2" v-model="colorObject" v-model:mode="mode" :modes="modes" hide-mode-switch disabled>
       </v-color-picker>
       <v-select class="ma-2" v-model="mode" :items="modes" style="max-width: 300px" />
+      <v-text-field
+        v-model="colorDeclaration"
+        append-inner-icon="mdi-content-copy"
+        label="Color declaration"
+        type="text"
+        variant="outlined"
+        readonly
+        @click:append-inner="copyColorDeclaration"
+      ></v-text-field>
       Since : {{ color.since }} <br />
       <span v-if="color.colorUsed">ColorUsed : {{ color.colorUsed }}</span>
       <Usage v-if="color.usage" :usage="color.usage" />
@@ -43,7 +52,16 @@ export default {
         b: this.color.resolveBlue(),
         a: this.color.resolveAlpha() / 100,
       };
-    }
+    },
+    colorDeclaration() {
+      return this.color.resolveColorDeclaration();
+    },
+  },
+
+  methods: {
+    async copyColorDeclaration() {
+      await navigator.clipboard.writeText(this.colorDeclaration);
+    },
   }
 
 }

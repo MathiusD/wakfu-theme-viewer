@@ -142,7 +142,14 @@ class ThemeParserClass {
                  */
                 resolveHex: () => {
                     return ThemeParser.getHexOfColor(color.id);
-                }
+                },
+                /**
+                 * Resolve wakfu color declaration
+                 * @returns wakfu color declaration of color
+                 */
+                resolveColorDeclaration: () => {
+                    return ThemeParser.getColorDeclaration(color.id);
+                },
             };
             for (const key in color) {
                 newColor[key] = color[key];
@@ -349,6 +356,33 @@ class ThemeParserClass {
         // Alpha isn't mandatory
 
         return RGBAToHexA(red, green, blue, alpha);
+    }
+
+    /**
+     * Resolve wakfu color declaration of specific color
+     * @param {String} name id of color
+     * @returns wakfu color 
+     */
+    getColorDeclaration(name) {
+        let color = this.getColor(name);
+        let colorCode = '';
+        if (color.colorUsed) {
+            colorCode = color.colorUsed;
+            if (color.alpha) {
+                colorCode += '@' + color.alpha / 100;
+            }
+        } else if (color) {
+            colorCode = color.resolveHex();
+        } else {
+            return null;
+        }
+        return (
+            '<color id="' +
+            name +
+            '" color="' +
+            colorCode +
+            '" />'
+        );
     }
 }
 
