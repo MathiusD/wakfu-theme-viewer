@@ -36,11 +36,20 @@ export default {
   data: () => ({
     modes: ['rgba', 'hexa'],
     mode: colorFormatSelected,
+    colorDeclaration: null,
   }),
+
+  mounted() {
+    this.refreshColorDeclaration();
+  },
 
   watch: {
     mode() {
       localStorage.setItem(localStorageColorFormatSelected, this.mode);
+      this.refreshColorDeclaration();
+    },
+    color() {
+      this.refreshColorDeclaration();
     }
   },
 
@@ -53,12 +62,12 @@ export default {
         a: this.color.resolveAlpha() / 100,
       };
     },
-    colorDeclaration() {
-      return this.color.resolveColorDeclaration();
-    },
   },
 
   methods: {
+    refreshColorDeclaration() {
+      this.colorDeclaration = this.color.resolveColorDeclaration(this.mode == 'hexa');
+    },
     async copyColorDeclaration() {
       await navigator.clipboard.writeText(this.colorDeclaration);
     },

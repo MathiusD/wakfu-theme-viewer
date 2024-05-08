@@ -3,6 +3,7 @@ import {
     RGBAToHexA,
     localStorageJsonThemeData,
     localStorageJsonThemeDataLastFetch,
+    floatWithMaxDigit
 } from "./utils.js";
 
 const cdnUrl = "https://wakfu.cdn.ankama.com/gamedata/";
@@ -145,10 +146,11 @@ class ThemeParserClass {
                 },
                 /**
                  * Resolve wakfu color declaration
+                 * @param {bool} useHex color format must be hex or rgba
                  * @returns wakfu color declaration of color
                  */
-                resolveColorDeclaration: () => {
-                    return ThemeParser.getColorDeclaration(color.id);
+                resolveColorDeclaration: (useHex = true) => {
+                    return ThemeParser.getColorDeclaration(color.id, useHex);
                 },
             };
             for (const key in color) {
@@ -361,9 +363,10 @@ class ThemeParserClass {
     /**
      * Resolve wakfu color declaration of specific color
      * @param {String} name id of color
+     * @param {bool} useHex color format must be hex or rgba
      * @returns wakfu color 
      */
-    getColorDeclaration(name) {
+    getColorDeclaration(name, useHex = true) {
         let color = this.getColor(name);
         let colorCode = '';
         if (color.colorUsed) {
@@ -372,7 +375,17 @@ class ThemeParserClass {
                 colorCode += '@' + color.alpha / 100;
             }
         } else if (color) {
-            colorCode = color.resolveHex();
+            if (useHex) {
+                colorCode = color.resolveHex();
+            } else {
+                colorCode =
+                  floatWithMaxDigit(color.red / 255) +
+                  ',' + floatWithMaxDigit(color.green / 255) +
+                  ',' + floatWithMaxDigit(color.blue / 255);
+                if (color.alpha) {
+                    colorCode += ',' + floatWithMaxDigit(color.alpha / 100);
+                }
+            }
         } else {
             return null;
         }

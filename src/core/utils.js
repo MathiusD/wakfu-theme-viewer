@@ -61,3 +61,13 @@ export const RGBAToHexA = (red, green, blue, alpha = null) => {
       (alphaHex != null ? formatHex(alphaHex) : "")
     );
 };
+
+/**
+ * Format float with maximum n digit
+ * @param {Number} float float to format
+ * @param {Number} digit max digit expected in final number
+ * @returns number formated
+ */
+export const floatWithMaxDigit = (float, digit) => {
+    return parseFloat(float.toFixed(2));
+}
