@@ -41,7 +41,7 @@ export default {
         r: this.color.resolveRed(),
         g: this.color.resolveGreen(),
         b: this.color.resolveBlue(),
-        a: this.color.resolveAlpha(),
+        a: this.color.resolveAlpha() / 100,
       };
     }
   }
