@@ -63,7 +63,7 @@ export default {
       this.refreshColorAttributes();
     },
     colorObject() {
-      this.refreshColorDeclaration(false);
+      this.refreshColorDeclaration(false, false);
     }
   },
 
@@ -80,10 +80,12 @@ export default {
         a: this.color.resolveAlpha() / 100,
       }
     },
-    refreshColorDeclaration(useDefault = true) {
+    refreshColorDeclaration(useDefault = true, formatDefault = true) {
       let useHexa = this.mode =='hexa';
-      if (useDefault) {
+      if (formatDefault) {
         this.defaultColorDeclaration = this.color.resolveColorDeclaration(useHexa);
+      }
+      if (useDefault) {
         this.colorDeclaration = this.defaultColorDeclaration;
       } else {
         this.colorDeclaration = colorDeclaration(
