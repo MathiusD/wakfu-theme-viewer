@@ -4,7 +4,7 @@
     <v-card-text>
       <v-color-picker class="ma-2" v-model="colorObject" v-model:mode="mode" :modes="modes" hide-mode-switch />
       <v-select class="ma-2" v-model="mode" :items="modes" style="max-width: 300px" />
-      <v-btn class="ma-2" @click="refreshColorAttributes()" text="Reset Color to default" />
+      <v-btn class="ma-2" @click="clearColor()" text="Reset Color to default" />
       <v-text-field class="ma-2"
         v-model="colorDeclaration"
         append-inner-icon="mdi-content-copy"
@@ -32,10 +32,16 @@
 
 <script>
 import Usage from "./Usage.vue";
-import { localStorageColorFormatSelected, colorToWakfuColor, colorDeclaration } from '../core/utils.js';
+import {
+  localStorageColorFormatSelected, localStorageCustomColors,
+  colorToWakfuColor, colorDeclaration
+} from '../core/utils.js';
 
 let colorFormatSelected = localStorage.getItem(localStorageColorFormatSelected);
 colorFormatSelected = colorFormatSelected != null ? colorFormatSelected : "rbga";
+
+let customColors = localStorage.getItem(localStorageCustomColors);
+customColors = customColors != null ? JSON.parse(customColors) : {};
 
 export default {
   name: 'Color',
@@ -64,21 +70,60 @@ export default {
     },
     colorObject() {
       this.refreshColorDeclaration(false, false);
+      this.addCustomColor();
     }
   },
 
   methods: {
-    refreshColorAttributes() {
+    addCustomColor() {
+      let colorObject = {
+        r: this.colorObject.r,
+        g: this.colorObject.g,
+        b: this.colorObject.b,
+        a: this.colorObject.a
+      };
+      let color = this.colorAsColorObject();
+      // Because js == operator sucks
+      if (colorObject.r == color.r && colorObject.g == color.g && colorObject.b == color.b && colorObject.a == color.a) {
+        this.deleteCustomColor();
+      } else {
+        customColors[this.color.id] = colorObject;
+        this.saveCustomColors();
+      }
+    },
+    deleteCustomColor() {
+        if (!Object.keys(customColors).includes(this.color.id)) return;
+
+        delete customColors[this.color.id];
+        this.saveCustomColors();
+    },
+    saveCustomColors() {
+      localStorage.setItem(localStorageCustomColors, JSON.stringify(customColors));
+    },
+    clearColor() {
+      this.refreshColorAttributes(false);
+      this.deleteCustomColor();
+    },
+    refreshColorAttributes(extractSavedColor = true) {
       this.refreshColorObject();
       this.refreshColorDeclaration();
+      if (extractSavedColor) {
+        let savedColor = customColors[this.color.id];
+        if (savedColor) {
+          this.colorObject = savedColor;
+        }
+      }
     },
-    refreshColorObject() {
-      this.colorObject = {
+    colorAsColorObject() {
+      return {
         r: this.color.resolveRed(),
         g: this.color.resolveGreen(),
         b: this.color.resolveBlue(),
         a: this.color.resolveAlpha() / 100,
       }
+    },
+    refreshColorObject() {
+      this.colorObject = this.colorAsColorObject();
     },
     refreshColorDeclaration(useDefault = true, formatDefault = true) {
       let useHexa = this.mode =='hexa';
