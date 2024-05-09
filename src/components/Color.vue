@@ -2,11 +2,10 @@
   <v-card class="ma-2" :variant="vCardVariant">
     <v-card-title>{{ color.id }}</v-card-title>
     <v-card-text>
-      <v-color-picker class="ma-2" v-model="colorObject" v-model:mode="mode" :modes="modes" hide-mode-switch>
-      </v-color-picker>
+      <v-color-picker class="ma-2" v-model="colorObject" v-model:mode="mode" :modes="modes" hide-mode-switch />
       <v-select class="ma-2" v-model="mode" :items="modes" style="max-width: 300px" />
-      <v-btn @click="refreshColorAttributes()" text="Reset Color to default" />
-      <v-text-field
+      <v-btn class="ma-2" @click="refreshColorAttributes()" text="Reset Color to default" />
+      <v-text-field class="ma-2"
         v-model="colorDeclaration"
         append-inner-icon="mdi-content-copy"
         label="Color declaration"
@@ -15,7 +14,7 @@
         readonly
         @click:append-inner="copyColorDeclaration"
       ></v-text-field>
-      <v-text-field
+      <v-text-field class="ma-2"
         v-model="defaultColorDeclaration"
         append-inner-icon="mdi-content-copy"
         label="Default Color declaration"
@@ -24,8 +23,8 @@
         readonly
         @click:append-inner="copyDefaultColorDeclaration"
       ></v-text-field>
-      Since : {{ color.since }} <br />
-      <span v-if="color.colorUsed">ColorUsed : {{ color.colorUsed }}</span>
+      <v-label class="ma-2">Since : {{ color.since }}</v-label><br />
+      <v-label class="ma-2" v-if="color.colorUsed">ColorUsed : {{ color.colorUsed }}</v-label><br />
       <Usage v-if="color.usage" :usage="color.usage" />
     </v-card-text>
   </v-card>
