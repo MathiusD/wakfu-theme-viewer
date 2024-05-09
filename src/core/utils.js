@@ -45,7 +45,7 @@ export const formatHex = (hex) => {
  * @param {Number} red must be in [0-255]
  * @param {Number} green must be in [0-255]
  * @param {Number} blue must be in [0-255]
- * @param {Number} alpha (optionnal) must be in [0-100]
+ * @param {Number} alpha (optional) must be in [0-100]
  * @returns hex
  */
 export const RGBAToHexA = (red, green, blue, alpha = null) => {
@@ -70,4 +70,49 @@ export const RGBAToHexA = (red, green, blue, alpha = null) => {
  */
 export const floatWithMaxDigit = (float, digit) => {
     return parseFloat(float.toFixed(digit));
+}
+
+/**
+ * Format color as rgba colors.xml declaration
+ * @param {Number} red must be in [0-255]
+ * @param {Number} green must be in [0-255]
+ * @param {Number} blue must be in [0-255]
+ * @param {Number} alpha (optional) must be in [0-100]
+ * @returns r,g,b(,a)?
+ */
+export const RGBAToWakfuColor = (red, green, blue, alpha = null) => {
+    let colorCode = floatWithMaxDigit(red / 255, 2) + ','
+        + floatWithMaxDigit(green / 255, 2) + ','
+        + floatWithMaxDigit(blue / 255, 2);
+    if (alpha && alpha != 100) {
+        colorCode += ',' + floatWithMaxDigit(alpha / 100, 2);
+    }
+    return colorCode;
+}
+
+/**
+ * Format color as wakfu colors.xml declaration
+ * @param {Number} red must be in [0-255]
+ * @param {Number} green must be in [0-255]
+ * @param {Number} blue must be in [0-255]
+ * @param {Number} alpha (optional) must be in [0-100]
+ * @param {boolean} useHex  (optional) if color declaration have hex format or rbga format
+ * @returns r,g,b(,a)?/hex
+ */
+export const colorToWakfuColor = (red, green, blue, alpha = null, useHex = true) => {
+    if (useHex) {
+        return RGBAToHexA(red, green, blue, alpha);
+    } else {
+        return RGBAToWakfuColor(red, green, blue, alpha);
+    }
+}
+
+/**
+ * Format color as colors.xml declaration
+ * @param {String} name color identifier
+ * @param {String} colorCode color wakfu code (r,g,b(,a)?|hex|colorRef(@a)?)
+ * @returns color declaration
+ */
+export const colorDeclaration = (name, colorCode) => {
+    return '<color id="' + name + '" color="' + colorCode + '" />';
 }

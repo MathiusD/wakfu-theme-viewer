@@ -3,7 +3,8 @@ import {
     RGBAToHexA,
     localStorageJsonThemeData,
     localStorageJsonThemeDataLastFetch,
-    floatWithMaxDigit
+    colorToWakfuColor,
+    colorDeclaration,
 } from "./utils.js";
 
 const cdnUrl = "https://wakfu.cdn.ankama.com/gamedata/";
@@ -375,27 +376,11 @@ class ThemeParserClass {
                 colorCode += '@' + color.alpha / 100;
             }
         } else if (color) {
-            if (useHex) {
-                colorCode = color.resolveHex();
-            } else {
-                colorCode =
-                  floatWithMaxDigit(color.red / 255, 2) +
-                  ',' + floatWithMaxDigit(color.green / 255, 2) +
-                  ',' + floatWithMaxDigit(color.blue / 255, 2);
-                if (color.alpha && color.alpha != 100) {
-                    colorCode += ',' + floatWithMaxDigit(color.alpha / 100, 2);
-                }
-            }
+            colorCode = colorToWakfuColor(color.red, color.green, color.blue, color.alpha, useHex);
         } else {
             return null;
         }
-        return (
-            '<color id="' +
-            name +
-            '" color="' +
-            colorCode +
-            '" />'
-        );
+        return colorDeclaration(name, colorCode);
     }
 }
 
