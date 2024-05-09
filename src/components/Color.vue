@@ -5,6 +5,7 @@
       <v-color-picker class="ma-2" v-model="colorObject" v-model:mode="mode" :modes="modes" hide-mode-switch>
       </v-color-picker>
       <v-select class="ma-2" v-model="mode" :items="modes" style="max-width: 300px" />
+      <v-btn @click="refreshColorAttributes()" text="Reset Color to default" />
       <v-text-field
         v-model="colorDeclaration"
         append-inner-icon="mdi-content-copy"
