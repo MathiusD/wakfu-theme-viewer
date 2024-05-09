@@ -69,5 +69,5 @@ export const RGBAToHexA = (red, green, blue, alpha = null) => {
  * @returns number formated
  */
 export const floatWithMaxDigit = (float, digit) => {
-    return parseFloat(float.toFixed(2));
+    return parseFloat(float.toFixed(digit));
 }

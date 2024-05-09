@@ -379,11 +379,11 @@ class ThemeParserClass {
                 colorCode = color.resolveHex();
             } else {
                 colorCode =
-                  floatWithMaxDigit(color.red / 255) +
-                  ',' + floatWithMaxDigit(color.green / 255) +
-                  ',' + floatWithMaxDigit(color.blue / 255);
+                  floatWithMaxDigit(color.red / 255, 2) +
+                  ',' + floatWithMaxDigit(color.green / 255, 2) +
+                  ',' + floatWithMaxDigit(color.blue / 255, 2);
                 if (color.alpha && color.alpha != 100) {
-                    colorCode += ',' + floatWithMaxDigit(color.alpha / 100);
+                    colorCode += ',' + floatWithMaxDigit(color.alpha / 100, 2);
                 }
             }
         } else {
