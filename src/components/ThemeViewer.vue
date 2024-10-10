@@ -13,7 +13,7 @@
             <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line />
             <v-btn @click="reloadThemeData()" icon="mdi-refresh" />
           </v-card-title>
-          <v-data-table :headers="headers" :items="result" v-model:search="search" @click:row="pickElement" dense>
+          <v-data-table class="theme-viewer" :headers="headers" :items="result" v-model:search="search" @click:row="pickElement" dense :row-props="itemRawProps">
             <template v-slot:item.pixmaps="{ item }">
               <div v-if="item.pixmaps && item.pixmaps.length > 0">
                 {{ item.pixmaps.length }} ({{ item.pixmaps.filter(p => p.id).length }} named)
@@ -283,6 +283,14 @@ export default {
         this.currentAppSkinPart = element;
       }
     },
+
+    itemRawProps({ item }) {
+      if (item == this.currentAppSkinPart || item == this.currentColor || item == this.currentThemeElement || item == this.currentPixmap) {
+        return { class: "selected" }
+      } else {
+        return {}
+      }
+    },
   }
 }
 </script>
@@ -291,5 +299,17 @@ export default {
 .data-visualiser-sticky> :not(.not-sticky) {
   position: sticky;
   top: 1.5vh;
+}
+</style>
+
+<style>
+.theme-viewer .selected * {
+  font-weight: bold;
+}
+.v-theme--dark .theme-viewer .selected * {
+  background-color: rgb(15, 15, 15);
+}
+.v-theme--light .theme-viewer .selected * {
+  background-color: rgb(235, 235, 235);
 }
 </style>
