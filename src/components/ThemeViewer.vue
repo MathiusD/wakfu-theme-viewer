@@ -24,6 +24,11 @@
                 {{ item.usage.length }}
               </div>
             </template>
+            <template v-slot:item.textures="{ item }">
+              <div v-if="item.pixmaps && item.pixmaps.length > 0">
+                {{ [...new Set(item.pixmaps.filter(p => p.texture).map(p => p.texture))].length }} distinct textures
+              </div>
+            </template>
           </v-data-table>
         </v-card>
       </v-col>
@@ -203,6 +208,11 @@ export default {
         }, {
           title: 'Type',
           key: 'type',
+          align: 'left',
+        }, {
+          title: 'Textures',
+          key: 'textures',
+          value: themeElement => themeElement.pixmaps.map(pixmap => pixmap.texture),
           align: 'left',
         }
       ]
