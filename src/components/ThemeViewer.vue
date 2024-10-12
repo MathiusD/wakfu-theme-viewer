@@ -146,6 +146,7 @@ watch(search, (newValue, oldValue) => {
 });
 
 let firstPageSetup = false;
+let goToItemPage = false;
 
 export default {
   name: 'ThemeViewer',
@@ -414,20 +415,22 @@ export default {
     },
 
     setupFirstPage() {
-      // Already setup
-      if (firstPageSetup) return;
+      if (!firstPageSetup) {
+        let currentPageSize = localStorage.getItem(localStorageCurrentPageSize);
+        if (currentPageSize != null) {
+          this.pageSize = currentPageSize;
+        }
 
-      let currentPageSize = localStorage.getItem(localStorageCurrentPageSize);
-      if (currentPageSize != null) {
-        this.pageSize = currentPageSize;
+        let currentPage = localStorage.getItem(localStorageCurrentPage);
+        if (currentPage != null) {
+          this.page = currentPage;
+        }
+
+        firstPageSetup = true;
+      } else if (goToItemPage) {
+        this.page = this.currentElementPage();
+        goToItemPage = false;
       }
-
-      let currentPage = localStorage.getItem(localStorageCurrentPage);
-      if (currentPage != null) {
-        this.page = currentPage;
-      }
-
-      firstPageSetup = true;
     },
 
     onPageUpdate(pageNumber) {
@@ -441,7 +444,34 @@ export default {
       // Not setup for now
       if (!firstPageSetup) return;
 
+      // Replace user at itemPage instead first page if possible
+      goToItemPage = true;
+
       localStorage.setItem(localStorageCurrentPageSize, pageSize);
+    },
+
+    currentElementIndex() {
+      return this.result.findIndex(element => {
+        if ("pixmap" === this.radioType) {
+          return this.currentPixmap === element;
+        } else if ("themeElement" === this.radioType) {
+          return this.currentThemeElement === element;
+        } else if ("color" === this.radioType) {
+          return this.currentColor === element;
+        } else if ("appSkinPart" === this.radioType) {
+          return this.currentAppSkinPart === element;
+        } else {
+          return false;
+        }
+      });
+    },
+
+    currentElementPage(pageSize = this.pageSize) {
+      let currentIndex = this.currentElementIndex();
+      // Not element selected so used first page
+      if (currentIndex == -1) return 1;
+
+      return Math.trunc(currentIndex / pageSize) + 1;
     },
   }
 }
