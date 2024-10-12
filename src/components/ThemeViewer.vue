@@ -106,9 +106,12 @@ import ThemeElement from "./ThemeElement.vue";
 import Color from "./Color.vue";
 import AppSkinPart from "./AppSkinPart.vue";
 import ColorsUtils from "./ColorsUtils.vue";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
-import { localStorageElementSelected, localStorageRadioTypeSelected } from '../core/utils.js';
+import {
+  localStorageElementSelected, localStorageRadioTypeSelected,
+  localStorageCurrentSearch
+} from '../core/utils.js';
 
 let selectedRadioType = localStorage.getItem(localStorageRadioTypeSelected);
 selectedRadioType = selectedRadioType != null ? selectedRadioType : "pixmap";
@@ -132,6 +135,14 @@ if (!selectedElement) {
 const getDataViewerClass = (dataViewerPosition) => {
   return dataViewerPosition == 'sticky' ? 'w-50 data-visualiser-sticky' : 'w-50';
 }
+
+let currentSearch = localStorage.getItem(localStorageCurrentSearch);
+currentSearch = currentSearch != null ? currentSearch : "";
+const search = ref(currentSearch);
+
+watch(search, (newValue, oldValue) => {
+  localStorage.setItem(localStorageCurrentSearch, newValue);
+});
 
 export default {
   name: 'ThemeViewer',
@@ -165,7 +176,7 @@ export default {
     result: undefined,
     loaded: false,
     radioType: selectedRadioType,
-    search: "",
+    search: search,
     dataViewerClass: "",
     colorKey: ref(0),
     colorElementKey: ref(0),

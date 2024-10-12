@@ -8,6 +8,7 @@ export const localStorageElementSelected = "elementSelected";
 export const localStorageColorFormatSelected = "colorFormatSelected";
 export const localStorageDataViewerPosition = "dataViewerPosition";
 export const localStorageCustomColors = "customColors";
+export const localStorageCurrentSearch = "currentSearch";
 
 // Cf here : https://stackoverflow.com/questions/56393880/how-do-i-detect-dark-mode-using-javascript
 export const defaultWindowTheme = () => {
