@@ -387,6 +387,7 @@ export default {
       } else if ("appSkinPart" === this.radioType) {
         this.currentAppSkinPart = element;
       }
+      localStorage.setItem(localStorageCurrentPage, this.currentElementPage());
     },
 
     itemRawProps({ item }) {
@@ -437,7 +438,10 @@ export default {
       // Not setup for now
       if (!firstPageSetup) return;
 
-      localStorage.setItem(localStorageCurrentPage, pageNumber);
+      // Register page only if you don't have element selected
+      if (this.currentElement() == null) {
+        localStorage.setItem(localStorageCurrentPage, pageNumber);
+      }
     },
 
     onPageSizeUpdate(pageSize) {
@@ -451,19 +455,24 @@ export default {
     },
 
     currentElementIndex() {
+      let currentElement = this.currentElement();
       return this.result.findIndex(element => {
-        if ("pixmap" === this.radioType) {
-          return this.currentPixmap === element;
-        } else if ("themeElement" === this.radioType) {
-          return this.currentThemeElement === element;
-        } else if ("color" === this.radioType) {
-          return this.currentColor === element;
-        } else if ("appSkinPart" === this.radioType) {
-          return this.currentAppSkinPart === element;
-        } else {
-          return false;
-        }
+        return element === currentElement;
       });
+    },
+
+    currentElement() {
+      if ("pixmap" === this.radioType) {
+        return this.currentPixmap;
+      } else if ("themeElement" === this.radioType) {
+        return this.currentThemeElement;
+      } else if ("color" === this.radioType) {
+        return this.currentColor;
+      } else if ("appSkinPart" === this.radioType) {
+        return this.currentAppSkinPart;
+      } else {
+        return null;
+      }
     },
 
     currentElementPage(pageSize = this.pageSize) {
