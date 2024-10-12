@@ -391,7 +391,8 @@ export default {
       } else if ("appSkinPart" === this.radioType) {
         this.currentAppSkinPart = element;
       }
-      localStorage.setItem(localStorageCurrentPage, this.currentElementPage());
+      // Save current page of selected element
+      localStorage.setItem(localStorageCurrentPage, this.page);
     },
 
     itemRawProps({ item }) {
