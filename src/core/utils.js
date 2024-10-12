@@ -5,6 +5,7 @@ export const localStorageJsonThemeDataLastFetch = "jsonThemeDataLastFetch";
 export const localStorageTextureKey = "texture";
 export const localStorageRadioTypeSelected = "radioTypeSelected";
 export const localStorageElementSelected = "elementSelected";
+export const localStorageElementSelectedIndex = "elementSelectedIndex";
 export const localStorageColorFormatSelected = "colorFormatSelected";
 export const localStorageDataViewerPosition = "dataViewerPosition";
 export const localStorageCustomColors = "customColors";

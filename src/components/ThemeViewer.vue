@@ -110,7 +110,7 @@ import ColorsUtils from "./ColorsUtils.vue";
 import { ref, watch } from "vue";
 
 import {
-  localStorageElementSelected, localStorageRadioTypeSelected,
+  localStorageElementSelected, localStorageElementSelectedIndex, localStorageRadioTypeSelected,
   localStorageCurrentSearch, localStorageCurrentPage, localStorageCurrentPageSize
 } from '../core/utils.js';
 
@@ -144,6 +144,9 @@ const search = ref(currentSearch);
 watch(search, (newValue, oldValue) => {
   localStorage.setItem(localStorageCurrentSearch, newValue);
 });
+
+let selectedIndex = localStorage.getItem(localStorageElementSelectedIndex);
+selectedIndex = selectedIndex != null ? selectedIndex : -1;
 
 let firstPageSetup = false;
 let goToItemPage = false;
@@ -378,6 +381,7 @@ export default {
     },
 
     pickElement(event, data) {
+      let index = (data.index + 1) + (this.pageSize * (this.page - 1));
       let element = data.item;
       let selectedElement;
       selectedElement = element.id;
@@ -393,6 +397,8 @@ export default {
       }
       // Save current page of selected element
       localStorage.setItem(localStorageCurrentPage, this.page);
+      localStorage.setItem(localStorageElementSelectedIndex, index);
+      selectedIndex = index;
     },
 
     itemRawProps({ item }) {
@@ -460,10 +466,7 @@ export default {
     },
 
     currentElementIndex() {
-      let currentElement = this.currentElement();
-      return this.result.findIndex(element => {
-        return element === currentElement;
-      });
+      return selectedIndex;
     },
 
     currentElement() {
