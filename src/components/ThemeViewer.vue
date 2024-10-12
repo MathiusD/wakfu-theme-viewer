@@ -13,7 +13,10 @@
             <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line />
             <v-btn @click="reloadThemeData()" icon="mdi-refresh" />
           </v-card-title>
-          <v-data-table class="theme-viewer" :headers="headers" :items="result" v-model:search="search" @click:row="pickElement" dense :row-props="itemRawProps">
+          <ColorsUtils :key="colorKey" v-if="'color' === radioType"
+            :colorsRefreshFunction="forceReRenderOfEachColors" />
+          <v-data-table class="theme-viewer" :headers="headers" :items="result" v-model:search="search"
+            @click:row="pickElement" dense :row-props="itemRawProps">
             <template v-slot:item.pixmaps="{ item }">
               <div v-if="item.pixmaps && item.pixmaps.length > 0">
                 {{ item.pixmaps.length }} ({{ item.pixmaps.filter(p => p.id).length }} named)
@@ -29,6 +32,56 @@
                 {{ [...new Set(item.pixmaps.filter(p => p.texture).map(p => p.texture))].length }} distinct textures
               </div>
             </template>
+            <template v-slot:item.red="{ item }">
+              <div v-if="item && !item.colorIsOverrided()">
+                {{ item.resolveRed() }}
+              </div>
+              <v-tooltip v-else :text="'default value : ' + item.resolveRed(true)" location="bottom">
+                <template v-slot:activator="{ props }">
+                  <div v-bind="props">{{ item.resolveRed(false) }}</div>
+                </template>
+              </v-tooltip>
+            </template>
+            <template v-slot:item.green="{ item }">
+              <div v-if="item && !item.colorIsOverrided()">
+                {{ item.resolveGreen() }}
+              </div>
+              <v-tooltip v-else :text="'default value : ' + item.resolveGreen(true)" location="bottom">
+                <template v-slot:activator="{ props }">
+                  <div v-bind="props">{{ item.resolveGreen(false) }}</div>
+                </template>
+              </v-tooltip>
+            </template>
+            <template v-slot:item.blue="{ item }">
+              <div v-if="item && !item.colorIsOverrided()">
+                {{ item.resolveBlue() }}
+              </div>
+              <v-tooltip v-else :text="'default value : ' + item.resolveBlue(true)" location="bottom">
+                <template v-slot:activator="{ props }">
+                  <div v-bind="props">{{ item.resolveBlue(false) }}</div>
+                </template>
+              </v-tooltip>
+            </template>
+            <template v-slot:item.alpha="{ item }">
+              <div v-if="item && !item.colorIsOverrided()">
+                {{ item.resolveAlpha() }}
+              </div>
+              <v-tooltip v-else :text="'default value : ' + item.resolveAlpha(true)" location="bottom">
+                <template v-slot:activator="{ props }">
+                  <div v-bind="props">{{ item.resolveAlpha(false) }}</div>
+                </template>
+              </v-tooltip>
+            </template>
+            <template v-slot:item.hex="{ item }">
+              <div v-if="item && !item.colorIsOverrided()">
+                {{ item.resolveHex() }}
+              </div>
+              <v-tooltip v-else :text="'default value : ' + item.resolveHex(true)" location="bottom">
+                <template v-slot:activator="{ props }">
+                  <div v-bind="props">{{ item.resolveHex(false) }}</div>
+                </template>
+              </v-tooltip>
+            </template>
           </v-data-table>
         </v-card>
       </v-col>
@@ -36,7 +89,8 @@
         <Pixmap v-if="'pixmap' === radioType && currentPixmap" :pixmap="currentPixmap" :vCardVariant="vCardVariant" />
         <ThemeElement v-else-if="'themeElement' === radioType && currentThemeElement"
           :theme-element="currentThemeElement" :vCardVariant="vCardVariant" />
-        <Color v-else-if="'color' === radioType && currentColor" :color="currentColor" :vCardVariant="vCardVariant" />
+        <Color :key="colorElementKey" v-else-if="'color' === radioType && currentColor" :color="currentColor"
+          :vCardVariant="vCardVariant" :colorRefreshFunction="forceReRenderOfColors" />
         <AppSkinPart v-else-if="'appSkinPart' === radioType && currentAppSkinPart" :appSkinPart="currentAppSkinPart"
           :vCardVariant="vCardVariant" />
       </v-col>
@@ -51,6 +105,8 @@ import Pixmap from "./Pixmap.vue";
 import ThemeElement from "./ThemeElement.vue";
 import Color from "./Color.vue";
 import AppSkinPart from "./AppSkinPart.vue";
+import ColorsUtils from "./ColorsUtils.vue";
+import { ref } from "vue";
 
 import { localStorageElementSelected, localStorageRadioTypeSelected } from '../core/utils.js';
 
@@ -87,6 +143,7 @@ export default {
     ThemeElement,
     Color,
     AppSkinPart,
+    ColorsUtils,
   },
 
   mounted() {
@@ -110,6 +167,8 @@ export default {
     radioType: selectedRadioType,
     search: "",
     dataViewerClass: "",
+    colorKey: ref(0),
+    colorElementKey: ref(0),
   }),
 
   watch: {
@@ -131,15 +190,19 @@ export default {
       } else if (this.radioType == 'themeElement') {
         this.currentThemeElement = ThemeParser.getThemeElement(selectedElement);
       } else if (this.radioType == 'color') {
-        this.currentColor = ThemeParser.getColor(selectedElement);
+        this.currentColor = ThemeParser.getColor(selectedElement, false);
       } else if (this.radioType == 'appSkinPart') {
         this.currentAppSkinPart = ThemeParser.getAppSkinPart(selectedElement);
       }
     },
 
     reloadDataTable() {
-      this.headers = this.generateHeaders();
+      this.reloadDataHeader();
       this.result = this.generateResult();
+    },
+
+    reloadDataHeader() {
+      this.headers = this.generateHeaders();
     },
 
     reloadThemeData() {
@@ -225,27 +288,52 @@ export default {
         }, {
           title: 'Red',
           key: 'red',
-          value: color => color.resolveRed(),
+          value: color => {
+            return [
+              color.resolveRed(true),
+              color.resolveRed(false)
+            ]
+          },
           align: 'left',
         }, {
           title: 'Green',
           key: 'green',
-          value: color => color.resolveGreen(),
+          value: color => {
+            return [
+              color.resolveGreen(true),
+              color.resolveGreen(false)
+            ]
+          },
           align: 'left',
         }, {
           title: 'Blue',
           key: 'blue',
-          value: color => color.resolveBlue(),
+          value: color => {
+            return [
+              color.resolveBlue(true),
+              color.resolveBlue(false)
+            ]
+          },
           align: 'left',
         }, {
           title: 'Alpha',
           key: 'alpha',
-          value: color => color.resolveAlpha(),
+          value: color => {
+            return [
+              color.resolveAlpha(true),
+              color.resolveAlpha(false)
+            ]
+          },
           align: 'left',
         }, {
           title: 'Hex',
           key: 'hex',
-          value: color => color.resolveHex(),
+          value: color => {
+            return [
+              color.resolveHex(true),
+              color.resolveHex(false)
+            ]
+          },
           align: 'left',
         }, {
           title: 'Usage',
@@ -285,11 +373,28 @@ export default {
     },
 
     itemRawProps({ item }) {
-      if (item == this.currentAppSkinPart || item == this.currentColor || item == this.currentThemeElement || item == this.currentPixmap) {
+      let selected = item && (item == this.currentAppSkinPart || item == this.currentColor || item == this.currentThemeElement || item == this.currentPixmap);
+      let customised = item && "color" === this.radioType && item.colorIsOverrided();
+      if (selected && customised) {
+        return { class: "selected customised" }
+      } else if (selected) {
         return { class: "selected" }
+      } else if (customised) {
+        return { class: "customised" }
       } else {
-        return {}
+        return { class: "" }
       }
+    },
+
+    forceReRenderOfColors() {
+      this.colorKey += 1;
+      // To reload value of r,g,b,a,hex of colors in table
+      this.reloadDataHeader();
+    },
+
+    forceReRenderOfEachColors() {
+      this.forceReRenderOfColors();
+      this.colorElementKey += 1;
     },
   }
 }
@@ -305,6 +410,9 @@ export default {
 <style>
 .theme-viewer .selected * {
   font-weight: bold;
+}
+.theme-viewer .customised * {
+  font-style: italic;
 }
 .v-theme--dark .theme-viewer .selected * {
   background-color: rgb(15, 15, 15);

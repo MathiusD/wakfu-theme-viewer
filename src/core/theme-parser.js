@@ -5,6 +5,7 @@ import {
     localStorageJsonThemeDataLastFetch,
     colorToWakfuColor,
     colorDeclaration,
+    localStorageCustomColors,
 } from "./utils.js";
 
 const cdnUrl = "https://wakfu.cdn.ankama.com/gamedata/";
@@ -20,6 +21,7 @@ class ThemeParserClass {
     _textures = new Map();
     _pixmaps = new Map();
     _colors = new Map();
+    _modifiedColors = new Map();
     _themeElements = new Map();
     _appSkinParts = new Map();
 
@@ -44,6 +46,7 @@ class ThemeParserClass {
                     this.loadTextures().then(() => {
                         this.loadPixmaps();
                         this.loadColors();
+                        this.loadCustomColors();
                         this.loadThemeElements();
                         this.loadAppSkinParts();
                         resolve();
@@ -60,6 +63,7 @@ class ThemeParserClass {
                 this.loadTextures().then(() => {
                     this.loadPixmaps();
                     this.loadColors();
+                    this.loadCustomColors();
                     this.loadThemeElements();
                     this.loadAppSkinParts();
                     resolve();
@@ -109,54 +113,7 @@ class ThemeParserClass {
      */
     loadColors() {
         for (const color of this._theme.colors) {
-            let newColor = {
-                /**
-                 * Resolve red component
-                 * @returns red component of color
-                 */
-                resolveRed: () => {
-                    return ThemeParser.getRedOfColor(color.id);
-                },
-                /**
-                 * Resolve green component
-                 * @returns green component of color
-                 */
-                resolveGreen: () => {
-                    return ThemeParser.getBlueOfColor(color.id);
-                },
-                /**
-                 * Resolve blue component
-                 * @returns blue component of color
-                 */
-                resolveBlue: () => {
-                    return ThemeParser.getGreenOfColor(color.id);
-                },
-                /**
-                 * Resolve alpha
-                 * @returns alpha of color
-                 */
-                resolveAlpha: () => {
-                    return ThemeParser.getAlphaOfColor(color.id);
-                },
-                /**
-                 * Resolve hex representation
-                 * @returns hex representation of color
-                 */
-                resolveHex: () => {
-                    return ThemeParser.getHexOfColor(color.id);
-                },
-                /**
-                 * Resolve wakfu color declaration
-                 * @param {bool} useHex color format must be hex or rgba
-                 * @returns wakfu color declaration of color
-                 */
-                resolveColorDeclaration: (useHex = true) => {
-                    return ThemeParser.getColorDeclaration(color.id, useHex);
-                },
-            };
-            for (const key in color) {
-                newColor[key] = color[key];
-            }
+            let newColor = this.addMethodsOfColor(color);
             this._colors.set(color.id, newColor);
         }
     }
@@ -171,6 +128,14 @@ class ThemeParserClass {
             flattened.pixmaps = [];
             this.flattenThemeElement(flattened, element)
             this._themeElements.set(element.id, flattened)
+        }
+    }
+
+    loadCustomColors() {
+        let customColors = localStorage.getItem(localStorageCustomColors);
+        customColors = customColors != null ? JSON.parse(customColors) : {};
+        for (const name of Object.keys(customColors)) {
+            ThemeParser.addCustomColor(name, customColors[name]);
         }
     }
 
@@ -269,21 +234,105 @@ class ThemeParserClass {
     /**
      * Get specific color by id
      * @param {String} name id of color
+     * @param {boolean} originalOnly must be resolve
+     * only theme declaration or user defined declaration
      * @returns color related, null otherwise
      */
-    getColor(name) {
-        return this._colors.get(name);
+    getColor(name, originalOnly = false) {
+        if (!originalOnly && this._modifiedColors.has(name)) {
+            return this._modifiedColors.get(name);
+        } else {
+            return this._colors.get(name);
+        }
+    }
+
+    /**
+     * Add utility methods in new objects and copy attributes of colors supplied
+     * @param {Object} color color object with at least, id, red, green, blue
+     * @returns color copy with utility methods
+     */
+    addMethodsOfColor(color) {
+        let newColor = {
+            /**
+             * Resolve red component
+             * @param {boolean} originalOnly must be resolve
+             * only theme declaration or user defined declaration
+             * @returns red component of color
+             */
+            resolveRed: (originalOnly = false) => {
+                return ThemeParser.getRedOfColor(color.id, originalOnly);
+            },
+            /**
+             * Resolve green component
+             * @param {boolean} originalOnly must be resolve
+             * only theme declaration or user defined declaration
+             * @returns green component of color
+             */
+            resolveGreen: (originalOnly = false) => {
+                return ThemeParser.getGreenOfColor(color.id, originalOnly);
+            },
+            /**
+             * Resolve blue component
+             * @param {boolean} originalOnly must be resolve
+             * only theme declaration or user defined declaration
+             * @returns blue component of color
+             */
+            resolveBlue: (originalOnly = false) => {
+                return ThemeParser.getBlueOfColor(color.id, originalOnly);
+            },
+            /**
+             * Resolve alpha
+             * @param {boolean} originalOnly must be resolve
+             * only theme declaration or user defined declaration
+             * @returns alpha of color
+             */
+            resolveAlpha: (originalOnly = false) => {
+                return ThemeParser.getAlphaOfColor(color.id, originalOnly);
+            },
+            /**
+             * Resolve hex representation
+             * @param {boolean} originalOnly must be resolve
+             * only theme declaration or user defined declaration
+             * @returns hex representation of color
+             */
+            resolveHex: (originalOnly = false) => {
+                return ThemeParser.getHexOfColor(color.id, originalOnly);
+            },
+            /**
+             * Resolve wakfu color declaration
+             * @param {bool} useHex color format must be hex or rgba
+             * @param {boolean} originalOnly must be resolve
+             * @returns wakfu color declaration of color
+             */
+            resolveColorDeclaration: (useHex = true, originalOnly = false) => {
+                return ThemeParser.getColorDeclaration(color.id, useHex, originalOnly);
+            },
+            /**
+             * To known if color is overrided
+             * @returns true of color have custom definition
+             * false otherwise
+             */
+            colorIsOverrided: () => {
+                return ThemeParser.colorIsOverrided(color.id);
+            },
+        };
+        for (const key in color) {
+            newColor[key] = color[key];
+        }
+        return newColor;
     }
 
     /**
      * Resolve red component of color
      * @param {String} name id of color
+     * @param {boolean} originalOnly must be resolve
+     * only theme declaration or user defined declaration
      * @returns red component, null if color isn't exist
      */
-    getRedOfColor(name) {
-        let color = this._colors.get(name);
+    getRedOfColor(name, originalOnly = false) {
+        let color = this.getColor(name, originalOnly);
         if (color.colorUsed) {
-            return this.getRedOfColor(color.colorUsed);
+            return this.getRedOfColor(color.colorUsed, originalOnly);
         } else if (color != null) {
             return color.red;
         } else {
@@ -294,12 +343,14 @@ class ThemeParserClass {
     /**
      * Resolve green component of color
      * @param {String} name id of color
+     * @param {boolean} originalOnly must be resolve
+     * only theme declaration or user defined declaration
      * @returns green component, null if color isn't exist
      */
-    getGreenOfColor(name) {
-        let color = this._colors.get(name);
+    getGreenOfColor(name, originalOnly = false) {
+        let color = this.getColor(name, originalOnly);
         if (color.colorUsed) {
-            return this.getGreenOfColor(color.colorUsed);
+            return this.getGreenOfColor(color.colorUsed, originalOnly);
         } else if (color != null) {
             return color.green;
         } else {
@@ -310,12 +361,14 @@ class ThemeParserClass {
     /**
      * Resolve blue component of color
      * @param {String} name id of color
+     * @param {boolean} originalOnly must be resolve
+     * only theme declaration or user defined declaration
      * @returns blue component, null if color isn't exist
      */
-    getBlueOfColor(name) {
-        let color = this._colors.get(name);
+    getBlueOfColor(name, originalOnly = false) {
+        let color = this.getColor(name, originalOnly);
         if (color.colorUsed) {
-            return this.getBlueOfColor(color.colorUsed);
+            return this.getBlueOfColor(color.colorUsed, originalOnly);
         } else if (color != null) {
             return color.blue;
         } else {
@@ -326,13 +379,15 @@ class ThemeParserClass {
     /**
      * Resolve alpha of color
      * @param {String} name id of color
+     * @param {boolean} originalOnly must be resolve
+     * only theme declaration or user defined declaration
      * @returns alpha, null if color isn't exist
      * (or alpha isn't specified)
      */
-    getAlphaOfColor(name) {
-        let color = this._colors.get(name);
+    getAlphaOfColor(name, originalOnly = false) {
+        let color = this.getColor(name, originalOnly);
         if (color.colorUsed && !color.alpha) {
-            return this.getAlphaOfColor(color.colorUsed);
+            return this.getAlphaOfColor(color.colorUsed, originalOnly);
         } else if (color != null) {
             return color.alpha;
         } else {
@@ -343,19 +398,21 @@ class ThemeParserClass {
     /**
      * Resolve hex representation of color
      * @param {String} name id of color
+     * @param {boolean} originalOnly must be resolve
+     * only theme declaration or user defined declaration
      * @returns hex representation, null if color isn't exist
      */
-    getHexOfColor(name) {
-        let red = this.getRedOfColor(name);
-        if (red == null) return null;
+    getHexOfColor(name, originalOnly = false) {
+        let red = this.getRedOfColor(name, originalOnly);
+        if (!red) return null;
 
-        let green = this.getGreenOfColor(name);
-        if (green == null) return null;
+        let green = this.getGreenOfColor(name, originalOnly);
+        if (!green) return null;
 
-        let blue = this.getBlueOfColor(name);
-        if (blue == null) return null;
+        let blue = this.getBlueOfColor(name, originalOnly);
+        if (!blue) return null;
 
-        let alpha = this.getAlphaOfColor(name);
+        let alpha = this.getAlphaOfColor(name, originalOnly);
         // Alpha isn't mandatory
 
         return RGBAToHexA(red, green, blue, alpha);
@@ -365,10 +422,12 @@ class ThemeParserClass {
      * Resolve wakfu color declaration of specific color
      * @param {String} name id of color
      * @param {bool} useHex color format must be hex or rgba
+     * @param {boolean} originalOnly must be resolve
+     * only theme declaration or user defined declaration
      * @returns wakfu color 
      */
-    getColorDeclaration(name, useHex = true) {
-        let color = this.getColor(name);
+    getColorDeclaration(name, useHex = true, originalOnly = false) {
+        let color = this.getColor(name, originalOnly);
         let colorCode = '';
         if (color.colorUsed) {
             colorCode = color.colorUsed;
@@ -376,11 +435,85 @@ class ThemeParserClass {
                 colorCode += '@' + color.alpha / 100;
             }
         } else if (color) {
-            colorCode = colorToWakfuColor(color.red, color.green, color.blue, color.alpha, useHex);
+            colorCode = colorToWakfuColor(
+                this.getRedOfColor(name, originalOnly),
+                this.getGreenOfColor(name, originalOnly),
+                this.getBlueOfColor(name, originalOnly),
+                this.getAlphaOfColor(name, originalOnly),
+                useHex
+            );
         } else {
             return null;
         }
         return colorDeclaration(name, colorCode);
+    }
+    
+    /**
+     * Add custom definition of color
+     * @param {String} name id of color defined
+     * @param {any} colorData color data at rgba format
+     * rgb in [0-255] and a in [0-1]
+     * @returns color added if different of default color, default color otherwise
+     */
+    addCustomColor(name, colorData) {
+        let color = this.getColor(name, true);
+        if (
+            color.resolveRed(true) == colorData.r &&
+            color.resolveGreen(true) == colorData.g &&
+            color.resolveBlue(true) == colorData.b &&
+            color.resolveAlpha(true) == (colorData.a * 100)
+        ) {
+            if (this._modifiedColors.has(name)) {
+                this.removeCustomColor(name);
+            }
+            return color;
+        } else {
+            let newColor = {
+                red: colorData.r,
+                green: colorData.g,
+                blue: colorData.b,
+                alpha: colorData.a * 100
+            };
+            for (const key in color) {
+                if ([
+                    "red", "green", "blue", "alpha",
+                    "resolveRed", "resolveGreen",
+                    "resolveBlue", "resolveAlpha",
+                    "resolveHex", "resolveColorDeclaration",
+                    "colorUsed", "hasCustomColor"
+                ].includes(key)) continue;
+
+                newColor[key] = color[key];
+            }
+            newColor = this.addMethodsOfColor(newColor);
+            this._modifiedColors.set(name, newColor);
+            return newColor;
+        }
+    }
+
+    /**
+     * Remove custom definition of color
+     * @param {String} name id of color
+     */
+    removeCustomColor(name) {
+        this._modifiedColors.delete(name);
+    }
+
+    /**
+     * To known if color is overrided
+     * @param {String} name id of color
+     * @returns true of color have custom definition
+     * false otherwise
+     */
+    colorIsOverrided(name) {
+        return this._modifiedColors.has(name);
+    }
+
+    /**
+     * To remove each custom colors definied
+     */
+    clearCustomColors() {
+        this._modifiedColors.clear();
     }
 }
 

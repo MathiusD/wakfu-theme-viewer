@@ -32,6 +32,7 @@
 
 <script>
 import Usage from "./Usage.vue";
+import { ThemeParser } from '../core/theme-parser.js';
 import {
   localStorageColorFormatSelected, localStorageCustomColors,
   colorToWakfuColor, colorDeclaration
@@ -45,7 +46,7 @@ customColors = customColors != null ? JSON.parse(customColors) : {};
 
 export default {
   name: 'Color',
-  props: ['color', 'vCardVariant'],
+  props: ['color', 'vCardVariant', 'colorRefreshFunction'],
   components: { Usage },
 
   data: () => ({
@@ -64,6 +65,8 @@ export default {
     mode() {
       localStorage.setItem(localStorageColorFormatSelected, this.mode);
       this.refreshColorDeclaration(false);
+      // To refresh format used in generated file
+      this.colorRefreshFunction();
     },
     color() {
       this.refreshColorAttributes();
@@ -71,7 +74,7 @@ export default {
     colorObject() {
       this.refreshColorDeclaration(false, false);
       this.addCustomColor();
-    }
+    },
   },
 
   methods: {
@@ -83,26 +86,31 @@ export default {
         a: this.colorObject.a
       };
       let color = this.colorAsColorObject();
+      let isCustomColor = this.isCustomColor();
       // Because js == operator sucks
-      if (colorObject.r == color.r && colorObject.g == color.g && colorObject.b == color.b && colorObject.a == color.a) {
+      if (!isCustomColor && colorObject.r == color.r && colorObject.g == color.g && colorObject.b == color.b && colorObject.a == color.a) {
         this.deleteCustomColor();
       } else {
         customColors[this.color.id] = colorObject;
         this.saveCustomColors();
+        ThemeParser.addCustomColor(this.color.id, this.colorObject);
       }
     },
     deleteCustomColor() {
-        if (!Object.keys(customColors).includes(this.color.id)) return;
+      ThemeParser.removeCustomColor(this.color.id);
 
-        delete customColors[this.color.id];
-        this.saveCustomColors();
+      if (!Object.keys(customColors).includes(this.color.id)) return;
+
+      delete customColors[this.color.id];
+      this.saveCustomColors();
     },
     saveCustomColors() {
       localStorage.setItem(localStorageCustomColors, JSON.stringify(customColors));
+      this.colorRefreshFunction();
     },
     clearColor() {
-      this.refreshColorAttributes(false);
       this.deleteCustomColor();
+      this.refreshColorAttributes(false);
     },
     refreshColorAttributes(extractSavedColor = true) {
       this.refreshColorObject();
@@ -122,16 +130,19 @@ export default {
         a: this.color.resolveAlpha() / 100,
       }
     },
+    isCustomColor() {
+      return this.color.colorIsOverrided();
+    },
     refreshColorObject() {
       this.colorObject = this.colorAsColorObject();
     },
     refreshColorDeclaration(useDefault = true, formatDefault = true) {
       let useHexa = this.mode =='hexa';
       if (formatDefault) {
-        this.defaultColorDeclaration = this.color.resolveColorDeclaration(useHexa);
+        this.defaultColorDeclaration = this.color.resolveColorDeclaration(useHexa, true);
       }
       if (useDefault) {
-        this.colorDeclaration = this.defaultColorDeclaration;
+        this.colorDeclaration = this.color.resolveColorDeclaration(useHexa, false);
       } else {
         this.colorDeclaration = colorDeclaration(
           this.color.id,
