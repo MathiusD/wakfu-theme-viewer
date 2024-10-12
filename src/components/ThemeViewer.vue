@@ -194,6 +194,10 @@ export default {
       this.reloadDataTable();
       selectedElement = getDefaultElementPerRadioType(this.radioType);
       this.loadSelectedElement();
+      // reset search field on radioType switch
+      this.search = "";
+      // And request to show selected item page if possible
+      goToItemPage = true;
     },
     dataViewerPosition() {
       this.dataViewerClass = getDataViewerClass(this.dataViewerPosition);
