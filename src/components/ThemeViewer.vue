@@ -15,8 +15,9 @@
           </v-card-title>
           <ColorsUtils :key="colorKey" v-if="'color' === radioType"
             :colorsRefreshFunction="forceReRenderOfEachColors" />
-          <v-data-table class="theme-viewer" :headers="headers" :items="result" v-model:search="search"
-            @click:row="pickElement" dense :row-props="itemRawProps">
+          <v-data-table class="theme-viewer" :headers="headers" :items="result" v-model:search="search" v-model:page="page"
+            v-model:items-per-page="pageSize" @update:currentItems="setupFirstPage" @update:page="onPageUpdate"
+            @update:itemsPerPage="onPageSizeUpdate" @click:row="pickElement" dense :row-props="itemRawProps">
             <template v-slot:item.pixmaps="{ item }">
               <div v-if="item.pixmaps && item.pixmaps.length > 0">
                 {{ item.pixmaps.length }} ({{ item.pixmaps.filter(p => p.id).length }} named)
@@ -110,7 +111,7 @@ import { ref, watch } from "vue";
 
 import {
   localStorageElementSelected, localStorageRadioTypeSelected,
-  localStorageCurrentSearch
+  localStorageCurrentSearch, localStorageCurrentPage, localStorageCurrentPageSize
 } from '../core/utils.js';
 
 let selectedRadioType = localStorage.getItem(localStorageRadioTypeSelected);
@@ -143,6 +144,8 @@ const search = ref(currentSearch);
 watch(search, (newValue, oldValue) => {
   localStorage.setItem(localStorageCurrentSearch, newValue);
 });
+
+let firstPageSetup = false;
 
 export default {
   name: 'ThemeViewer',
@@ -177,6 +180,8 @@ export default {
     loaded: false,
     radioType: selectedRadioType,
     search: search,
+    page: ref(1),
+    pageSize: ref(10),
     dataViewerClass: "",
     colorKey: ref(0),
     colorElementKey: ref(0),
@@ -406,6 +411,37 @@ export default {
     forceReRenderOfEachColors() {
       this.forceReRenderOfColors();
       this.colorElementKey += 1;
+    },
+
+    setupFirstPage() {
+      // Already setup
+      if (firstPageSetup) return;
+
+      let currentPageSize = localStorage.getItem(localStorageCurrentPageSize);
+      if (currentPageSize != null) {
+        this.pageSize = currentPageSize;
+      }
+
+      let currentPage = localStorage.getItem(localStorageCurrentPage);
+      if (currentPage != null) {
+        this.page = currentPage;
+      }
+
+      firstPageSetup = true;
+    },
+
+    onPageUpdate(pageNumber) {
+      // Not setup for now
+      if (!firstPageSetup) return;
+
+      localStorage.setItem(localStorageCurrentPage, pageNumber);
+    },
+
+    onPageSizeUpdate(pageSize) {
+      // Not setup for now
+      if (!firstPageSetup) return;
+
+      localStorage.setItem(localStorageCurrentPageSize, pageSize);
     },
   }
 }
